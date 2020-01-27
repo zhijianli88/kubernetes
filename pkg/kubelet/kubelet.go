@@ -121,6 +121,17 @@ import (
 	"k8s.io/kubernetes/pkg/volume/util/hostutil"
 	"k8s.io/kubernetes/pkg/volume/util/subpath"
 	"k8s.io/kubernetes/pkg/volume/util/volumepathhandler"
+
+	// OpenTelemetry test
+	"go.opentelemetry.io/otel/api/distributedcontext"
+	"go.opentelemetry.io/otel/api/core"
+	"go.opentelemetry.io/otel/api/global"
+	"go.opentelemetry.io/otel/api/key"
+	"go.opentelemetry.io/otel/api/trace"
+	"go.opentelemetry.io/otel/plugin/httptrace"
+
+	"go.opentelemetry.io/otel/exporter/trace/jaeger"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 const (
@@ -181,7 +192,7 @@ const (
 
 // SyncHandler is an interface implemented by Kubelet, for testability
 type SyncHandler interface {
-	HandlePodAdditions(pods []*v1.Pod)
+	HandlePodAdditions(ctx context.Context pods []*v1.Pod)
 	HandlePodUpdates(pods []*v1.Pod)
 	HandlePodRemoves(pods []*v1.Pod)
 	HandlePodReconcile(pods []*v1.Pod)
@@ -1866,6 +1877,39 @@ func (kl *Kubelet) syncLoop(updates <-chan kubetypes.PodUpdate, handler SyncHand
 	}
 }
 
+
+
+func initTracer() func() {
+	// Create Jaeger Exporter
+	exporter, err := jaeger.NewExporter(
+		jaeger.WithCollectorEndpoint("http://localhost:14268/api/traces"),
+		jaeger.WithProcess(jaeger.Process{
+			ServiceName: "opentelemetry-sample",
+			Tags: []core.KeyValue{
+				key.String("exporter", "jaeger"),
+				key.Float64("float", 312.23),
+			},
+		}),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tp, err := sdktrace.NewProvider(
+		sdktrace.WithConfig(sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
+		sdktrace.WithSyncer(exporter))
+	if err != nil {
+		log.Fatal(err)
+	}
+	global.SetTraceProvider(tp)
+	return func() {
+		exporter.Flush()
+	}
+}
+
+
+
+
 // syncLoopIteration reads from various channels and dispatches pods to the
 // given handler.
 //
@@ -1909,6 +1953,15 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 			return false
 		}
 
+		// OpenTelemetry test
+		initTracer()
+		tracer := global.TraceProvider().Tracer("ex.com/basic")
+		tracer.WithSpan((context.Background(), "foo", 
+			func()error{
+				return nil
+			}
+		)
+
 		switch u.Op {
 		case kubetypes.ADD:
 			klog.V(2).Infof("SyncLoop (ADD, %q): %q", u.Source, format.Pods(u.Pods))
@@ -1916,7 +1969,8 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 			// ADD as if they are new pods. These pods will then go through the
 			// admission process and *may* be rejected. This can be resolved
 			// once we have checkpointing.
-			handler.HandlePodAdditions(u.Pods)
+			ctx, span := trace.
+			handler.HandlePodAdditions(ctx, u.Pods)
 		case kubetypes.UPDATE:
 			klog.V(2).Infof("SyncLoop (UPDATE, %q): %q", u.Source, format.PodsWithDeletionTimestamps(u.Pods))
 			handler.HandlePodUpdates(u.Pods)
@@ -2049,7 +2103,7 @@ func (kl *Kubelet) handleMirrorPod(mirrorPod *v1.Pod, start time.Time) {
 
 // HandlePodAdditions is the callback in SyncHandler for pods being added from
 // a config source.
-func (kl *Kubelet) HandlePodAdditions(pods []*v1.Pod) {
+func (kl *Kubelet) HandlePodAdditions(ctx context.Context pods []*v1.Pod) {
 	start := kl.clock.Now()
 	sort.Sort(sliceutils.PodsByCreationTime(pods))
 	for _, pod := range pods {
