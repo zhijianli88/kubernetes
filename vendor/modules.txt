@@ -184,6 +184,17 @@ github.com/containernetworking/cni/pkg/version
 # github.com/coredns/corefile-migration v1.0.4 => github.com/coredns/corefile-migration v1.0.4
 github.com/coredns/corefile-migration/migration
 github.com/coredns/corefile-migration/migration/corefile
+# github.com/coreos/etcd v3.3.10+incompatible => github.com/coreos/etcd v3.3.10+incompatible
+github.com/coreos/etcd/auth/authpb
+github.com/coreos/etcd/client
+github.com/coreos/etcd/clientv3
+github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes
+github.com/coreos/etcd/etcdserver/etcdserverpb
+github.com/coreos/etcd/mvcc/mvccpb
+github.com/coreos/etcd/pkg/pathutil
+github.com/coreos/etcd/pkg/srv
+github.com/coreos/etcd/pkg/types
+github.com/coreos/etcd/version
 # github.com/coreos/go-oidc v2.1.0+incompatible => github.com/coreos/go-oidc v2.1.0+incompatible
 github.com/coreos/go-oidc
 # github.com/coreos/go-semver v0.3.0 => github.com/coreos/go-semver v0.3.0
@@ -389,7 +400,7 @@ github.com/google/cadvisor/utils/sysinfo
 github.com/google/cadvisor/version
 github.com/google/cadvisor/watcher
 github.com/google/cadvisor/zfs
-# github.com/google/go-cmp v0.3.0 => github.com/google/go-cmp v0.3.0
+# github.com/google/go-cmp v0.3.1 => github.com/google/go-cmp v0.3.0
 github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/cmpopts
 github.com/google/go-cmp/cmp/internal/diff
@@ -485,7 +496,7 @@ github.com/jonboulle/clockwork
 github.com/json-iterator/go
 # github.com/karrick/godirwalk v1.7.5 => github.com/karrick/godirwalk v1.7.5
 github.com/karrick/godirwalk
-# github.com/konsorten/go-windows-terminal-sequences v1.0.1 => github.com/konsorten/go-windows-terminal-sequences v1.0.1
+# github.com/konsorten/go-windows-terminal-sequences v1.0.2 => github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/libopenstorage/openstorage v1.0.0 => github.com/libopenstorage/openstorage v1.0.0
 github.com/libopenstorage/openstorage/api
@@ -507,7 +518,7 @@ github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
 # github.com/mattn/go-colorable v0.0.9 => github.com/mattn/go-colorable v0.0.9
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.9 => github.com/mattn/go-isatty v0.0.9
+# github.com/mattn/go-isatty v0.0.10 => github.com/mattn/go-isatty v0.0.9
 github.com/mattn/go-isatty
 # github.com/mattn/go-shellwords v1.0.5 => github.com/mattn/go-shellwords v1.0.5
 github.com/mattn/go-shellwords
@@ -607,7 +618,7 @@ github.com/opencontainers/runtime-spec/specs-go
 # github.com/opencontainers/selinux v1.3.1-0.20190929122143-5215b1806f52 => github.com/opencontainers/selinux v1.3.1-0.20190929122143-5215b1806f52
 github.com/opencontainers/selinux/go-selinux
 github.com/opencontainers/selinux/go-selinux/label
-# github.com/pelletier/go-toml v1.2.0 => github.com/pelletier/go-toml v1.2.0
+# github.com/pelletier/go-toml v1.5.0 => github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
 # github.com/peterbourgon/diskv v2.0.1+incompatible => github.com/peterbourgon/diskv v2.0.1+incompatible
 github.com/peterbourgon/diskv
@@ -680,6 +691,8 @@ github.com/thecodeteam/goscaleio
 github.com/thecodeteam/goscaleio/types/v1
 # github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8 => github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8
 github.com/tmc/grpc-websocket-proxy/wsproxy
+# github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8 => github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8
+github.com/ugorji/go/codec
 # github.com/vishvananda/netlink v1.0.0 => github.com/vishvananda/netlink v1.0.0
 github.com/vishvananda/netlink
 github.com/vishvananda/netlink/nl
@@ -831,6 +844,19 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
+# go.opentelemetry.io/otel v0.2.1 => go.opentelemetry.io/otel v0.2.1
+go.opentelemetry.io/otel/api/core
+go.opentelemetry.io/otel/api/global
+go.opentelemetry.io/otel/api/global/internal
+go.opentelemetry.io/otel/api/metric
+go.opentelemetry.io/otel/api/trace
+go.opentelemetry.io/otel/api/unit
+go.opentelemetry.io/otel/exporter/trace/stdout
+go.opentelemetry.io/otel/sdk
+go.opentelemetry.io/otel/sdk/export/trace
+go.opentelemetry.io/otel/sdk/internal
+go.opentelemetry.io/otel/sdk/trace
+go.opentelemetry.io/otel/sdk/trace/internal
 # go.uber.org/atomic v1.3.2 => go.uber.org/atomic v1.3.2
 go.uber.org/atomic
 # go.uber.org/multierr v1.1.0 => go.uber.org/multierr v1.1.0
@@ -842,7 +868,7 @@ go.uber.org/zap/internal/bufferpool
 go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
-# golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586 => golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
+# golang.org/x/crypto v0.0.0-20190923035154-9ee001bba392 => golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/cryptobyte
@@ -863,7 +889,7 @@ golang.org/x/crypto/ssh/terminal
 # golang.org/x/lint v0.0.0-20190409202823-959b441ac422 => golang.org/x/lint v0.0.0-20190409202823-959b441ac422
 golang.org/x/lint
 golang.org/x/lint/golint
-# golang.org/x/net v0.0.0-20191004110552-13f9640d40b9 => golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
+# golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa => golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
 golang.org/x/net/bpf
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
@@ -892,7 +918,7 @@ golang.org/x/oauth2/jwt
 # golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e => golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 golang.org/x/sync/errgroup
 golang.org/x/sync/singleflight
-# golang.org/x/sys v0.0.0-20190826190057-c7b8b68b1456 => golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
+# golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 => golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
@@ -923,7 +949,7 @@ golang.org/x/text/unicode/norm
 golang.org/x/text/width
 # golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 => golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
 golang.org/x/time/rate
-# golang.org/x/tools v0.0.0-20190920225731-5eefd052ad72 => golang.org/x/tools v0.0.0-20190821162956-65e3620a7ae7
+# golang.org/x/tools v0.0.0-20191025174333-e96d959c4788 => golang.org/x/tools v0.0.0-20190821162956-65e3620a7ae7
 golang.org/x/tools/benchmark/parse
 golang.org/x/tools/container/intsets
 golang.org/x/tools/go/analysis
@@ -1003,7 +1029,7 @@ google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55 => google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
+# google.golang.org/genproto v0.0.0-20200127141224-2548664c049f => google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 google.golang.org/genproto/googleapis/api/httpbody
 google.golang.org/genproto/googleapis/rpc/status
 google.golang.org/genproto/protobuf/field_mask

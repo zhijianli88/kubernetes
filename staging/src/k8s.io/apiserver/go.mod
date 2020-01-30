@@ -18,13 +18,14 @@ require (
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/spec v0.19.3
 	github.com/gogo/protobuf v1.3.1
-	github.com/google/go-cmp v0.3.0
+	github.com/google/go-cmp v0.3.1
 	github.com/google/gofuzz v1.0.0
 	github.com/google/uuid v1.1.1
 	github.com/googleapis/gnostic v0.1.0
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/hashicorp/golang-lru v0.5.1
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822
 	github.com/pkg/errors v0.8.1
@@ -36,9 +37,10 @@ require (
 	github.com/stretchr/testify v1.4.0
 	go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738
 	go.uber.org/zap v1.10.0
-	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
-	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
+	golang.org/x/crypto v0.0.0-20190923035154-9ee001bba392
+	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
+	google.golang.org/genproto v0.0.0-20200127141224-2548664c049f // indirect
 	google.golang.org/grpc v1.26.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/square/go-jose.v2 v2.2.2
@@ -56,8 +58,15 @@ require (
 )
 
 replace (
+	github.com/google/go-cmp => github.com/google/go-cmp v0.3.0
+	github.com/konsorten/go-windows-terminal-sequences => github.com/konsorten/go-windows-terminal-sequences v1.0.1
+	github.com/mattn/go-isatty => github.com/mattn/go-isatty v0.0.9
+	golang.org/x/crypto => golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
+	golang.org/x/net => golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a // pinned to release-branch.go1.13
 	golang.org/x/tools => golang.org/x/tools v0.0.0-20190821162956-65e3620a7ae7 // pinned to release-branch.go1.13
+	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
+	gopkg.in/check.v1 => gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127
 	k8s.io/api => ../api
 	k8s.io/apimachinery => ../apimachinery
 	k8s.io/apiserver => ../apiserver

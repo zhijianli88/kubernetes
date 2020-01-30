@@ -37,6 +37,8 @@ require (
 	github.com/containerd/typeurl v0.0.0-20190228175220-2a93cfde8c20 // indirect
 	github.com/containernetworking/cni v0.7.1
 	github.com/coredns/corefile-migration v1.0.4
+	github.com/coreos/bbolt v1.3.3 // indirect
+	github.com/coreos/etcd v3.3.10+incompatible
 	github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e
 	github.com/coreos/pkg v0.0.0-20180108230652-97fdf19511ea
 	github.com/cpuguy83/go-md2man v1.0.10
@@ -64,7 +66,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903
 	github.com/golang/mock v1.3.1
 	github.com/google/cadvisor v0.35.0
-	github.com/google/go-cmp v0.3.0
+	github.com/google/go-cmp v0.3.1
 	github.com/google/gofuzz v1.0.0
 	github.com/google/uuid v1.1.1
 	github.com/googleapis/gnostic v0.1.0
@@ -107,7 +109,6 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.3.2
 	github.com/storageos/go-api v0.0.0-20180912212459-343b3eff91fc
@@ -119,13 +120,14 @@ require (
 	github.com/vishvananda/netns v0.0.0-20171111001504-be1fbeda1936 // indirect
 	github.com/vmware/govmomi v0.20.3
 	go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738
-	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
+	go.opentelemetry.io/otel v0.2.1
+	golang.org/x/crypto v0.0.0-20190923035154-9ee001bba392
 	golang.org/x/lint v0.0.0-20190409202823-959b441ac422
-	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
+	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	golang.org/x/sys v0.0.0-20190826190057-c7b8b68b1456
+	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
-	golang.org/x/tools v0.0.0-20190920225731-5eefd052ad72
+	golang.org/x/tools v0.0.0-20191025174333-e96d959c4788
 	gonum.org/v1/gonum v0.6.2
 	gonum.org/v1/netlib v0.0.0-20190331212654-76723241ea4e // indirect
 	google.golang.org/api v0.6.1-0.20190607001116-5213b8090861
@@ -183,6 +185,7 @@ replace (
 	github.com/Azure/go-autorest/tracing => github.com/Azure/go-autorest/tracing v0.5.0
 	github.com/BurntSushi/toml => github.com/BurntSushi/toml v0.3.1
 	github.com/BurntSushi/xgb => github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802
+	github.com/DataDog/sketches-go => github.com/DataDog/sketches-go v0.0.0-20190923095040-43f19ad77ff7
 	github.com/GoogleCloudPlatform/k8s-cloud-provider => github.com/GoogleCloudPlatform/k8s-cloud-provider v0.0.0-20190822182118-27a4ced34534
 	github.com/JeffAshton/win_pdh => github.com/JeffAshton/win_pdh v0.0.0-20161109143554-76bb4ee9f0ab
 	github.com/MakeNowJust/heredoc => github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd
@@ -208,6 +211,7 @@ replace (
 	github.com/bazelbuild/bazel-gazelle => github.com/bazelbuild/bazel-gazelle v0.19.1-0.20191105222053-70208cbdc798
 	github.com/bazelbuild/buildtools => github.com/bazelbuild/buildtools v0.0.0-20190917191645-69366ca98f89
 	github.com/bazelbuild/rules_go => github.com/bazelbuild/rules_go v0.0.0-20190719190356-6dae44dc5cab
+	github.com/benbjohnson/clock => github.com/benbjohnson/clock v1.0.0
 	github.com/beorn7/perks => github.com/beorn7/perks v1.0.0
 	github.com/bgentry/speakeasy => github.com/bgentry/speakeasy v0.1.0
 	github.com/bifurcation/mint => github.com/bifurcation/mint v0.0.0-20180715133206-93c51c6ce115
@@ -231,6 +235,7 @@ replace (
 	github.com/containerd/typeurl => github.com/containerd/typeurl v0.0.0-20190228175220-2a93cfde8c20
 	github.com/containernetworking/cni => github.com/containernetworking/cni v0.7.1
 	github.com/coredns/corefile-migration => github.com/coredns/corefile-migration v1.0.4
+	github.com/coreos/bbolt => github.com/coreos/bbolt v1.3.3
 	github.com/coreos/etcd => github.com/coreos/etcd v3.3.10+incompatible
 	github.com/coreos/go-etcd => github.com/coreos/go-etcd v2.0.0+incompatible
 	github.com/coreos/go-oidc => github.com/coreos/go-oidc v2.1.0+incompatible
@@ -372,6 +377,7 @@ replace (
 	github.com/kr/pty => github.com/kr/pty v1.1.5
 	github.com/kr/text => github.com/kr/text v0.1.0
 	github.com/kylelemons/godebug => github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348
+	github.com/lib/pq => github.com/lib/pq v1.2.0
 	github.com/libopenstorage/openstorage => github.com/libopenstorage/openstorage v1.0.0
 	github.com/liggitt/tabwriter => github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
 	github.com/lithammer/dedent => github.com/lithammer/dedent v1.1.0
@@ -420,6 +426,7 @@ replace (
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.0-rc9
 	github.com/opencontainers/runtime-spec => github.com/opencontainers/runtime-spec v1.0.0
 	github.com/opencontainers/selinux => github.com/opencontainers/selinux v1.3.1-0.20190929122143-5215b1806f52
+	github.com/opentracing/opentracing-go => github.com/opentracing/opentracing-go v1.1.1-0.20190913142402-a7454ce5950e
 	github.com/pelletier/go-toml => github.com/pelletier/go-toml v1.2.0
 	github.com/peterbourgon/diskv => github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/pkg/errors => github.com/pkg/errors v0.8.1
@@ -441,6 +448,7 @@ replace (
 	github.com/ryanuber/go-glob => github.com/ryanuber/go-glob v0.0.0-20170128012129-256dc444b735
 	github.com/satori/go.uuid => github.com/satori/go.uuid v1.2.0
 	github.com/seccomp/libseccomp-golang => github.com/seccomp/libseccomp-golang v0.9.1
+	github.com/securego/gosec => github.com/securego/gosec v0.0.0-20191008095658-28c1128b7336
 	github.com/sergi/go-diff => github.com/sergi/go-diff v1.0.0
 	github.com/shirou/gopsutil => github.com/shirou/gopsutil v0.0.0-20180427012116-c95755e4bcd7
 	github.com/shirou/w32 => github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4
@@ -470,6 +478,7 @@ replace (
 	github.com/ultraware/funlen => github.com/ultraware/funlen v0.0.2
 	github.com/urfave/cli => github.com/urfave/cli v1.20.0
 	github.com/urfave/negroni => github.com/urfave/negroni v1.0.0
+	github.com/uudashr/gocognit => github.com/uudashr/gocognit v1.0.0
 	github.com/valyala/bytebufferpool => github.com/valyala/bytebufferpool v1.0.0
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.2.0
 	github.com/valyala/quicktemplate => github.com/valyala/quicktemplate v1.1.1
@@ -485,6 +494,7 @@ replace (
 	go.etcd.io/etcd => go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738 // 3cf2f69b5738 is the SHA for git tag v3.4.3
 	go.mongodb.org/mongo-driver => go.mongodb.org/mongo-driver v1.1.2
 	go.opencensus.io => go.opencensus.io v0.21.0
+	go.opentelemetry.io/otel => go.opentelemetry.io/otel v0.2.1
 	go.uber.org/atomic => go.uber.org/atomic v1.3.2
 	go.uber.org/multierr => go.uber.org/multierr v1.1.0
 	go.uber.org/zap => go.uber.org/zap v1.10.0
