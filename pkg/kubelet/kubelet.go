@@ -1942,8 +1942,12 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 			// ADD as if they are new pods. These pods will then go through the
 			// admission process and *may* be rejected. This can be resolved
 			// once we have checkpointing.
-
-
+			ctx = context.WithValue(ctx, "aa", "it is ctx")
+			klog.V(2).Infof("HandlePodAdditions", ctx.Value("aa"))
+			//span.SpanContext()
+			klog.V(2).Infof("HandlePodAdditions:TraceID:", span.SpanContext().TraceIDString())
+			klog.V(2).Infof("HandlePodAdditions:SpanID:", span.SpanContext().SpanIDString())
+			//klog.V(2).Infof("HandlePodAdditions:TraceID: %s", span.SpanContext().TraceID)
 			handler.HandlePodAdditions(ctx, u.Pods)
 			//handler.HandlePodAdditions(u.Pods)
 		case kubetypes.UPDATE:
@@ -2082,6 +2086,20 @@ func (kl *Kubelet) handleMirrorPod(mirrorPod *v1.Pod, start time.Time) {
 func (kl *Kubelet) HandlePodAdditions(ctx context.Context, pods []*v1.Pod) {
 	start := kl.clock.Now()
 	sort.Sort(sliceutils.PodsByCreationTime(pods))
+
+	//Test about propagation of ctx
+	klog.V(2).Infof("at Handle %s", ctx.Value("TraceID")) // ctx is propagated OK
+	klog.V(2).Infof("at Handle %s", ctx.Value("")) // ctx is propagated OK
+	tracer := global.TraceProvider().Tracer("ex.com/basic")
+	tracer.WithSpan(ctx, "foo", 
+		func(ctx context.Context) error{
+			return nil
+		},
+	)
+	
+
+
+
 	for _, pod := range pods {
 		existingPods := kl.podManager.GetPods()
 		// Always add the pod to the pod manager. Kubelet relies on the pod
