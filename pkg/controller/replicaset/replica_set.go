@@ -35,6 +35,10 @@ import (
 	"sync"
 	"time"
 
+	"context"
+	"k8s.io/kubernetes/pkg/util/trace"
+
+
 	apps "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -568,7 +572,11 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*v1.Pod, rs *apps
 		// after one of its pods fails.  Conveniently, this also prevents the
 		// event spam that those failures would generate.
 		successfulCreations, err := slowStartBatch(diff, controller.SlowStartInitialBatchSize, func() error {
-			err := rsc.podControl.CreatePodsWithControllerRef(rs.Namespace, &rs.Spec.Template, rs, metav1.NewControllerRef(rs, rsc.GroupVersionKind))
+			//err := rsc.podControl.CreatePodsWithControllerRef(context.Background(), rs.Namespace, &rs.Spec.Template, rs, metav1.NewControllerRef(rs, rsc.GroupVersionKind))
+			ctx, span := traceutil.StartSpanFromObject(context.Background(), rs, "replicaset.CreatePod")
+			defer span.End()
+			err = rsc.podControl.CreatePodsWithControllerRef(ctx, rs.Namespace, &rs.Spec.Template, rs, metav1.NewControllerRef(rs, rsc.GroupVersionKind))
+	
 			if err != nil {
 				if errors.HasStatusCause(err, v1.NamespaceTerminatingCause) {
 					// if the namespace is being terminated, we don't have to do
@@ -694,8 +702,12 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 	rs = rs.DeepCopy()
 	newStatus := calculateStatus(rs, filteredPods, manageReplicasErr)
 
+	//transitionToDesiredState := rs.Spec.Replicas != nil && *rs.Spec.Replicas == newStatus.AvailableReplicas && *rs.Spec.Replicas != rs.Status.AvailableReplicas
+
+
 	// Always updates status as pods come up or die.
 	updatedRS, err := updateReplicaSetStatus(rsc.kubeClient.AppsV1().ReplicaSets(rs.Namespace), rs, newStatus)
+	//updatedRS, err := updateReplicaSetStatus(rsc.kubeClient.AppsV1().ReplicaSets(rs.Namespace), rs, newStatus, transitionToDesiredState)
 	if err != nil {
 		// Multiple things could lead to this update failing. Requeuing the replica set ensures
 		// Returning an error causes a requeue without forcing a hotloop

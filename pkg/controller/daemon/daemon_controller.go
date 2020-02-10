@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"k8s.io/klog"
+	"context"
 
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -949,7 +950,7 @@ func (dsc *DaemonSetsController) syncNodes(ds *apps.DaemonSet, podsToDelete, nod
 				podTemplate.Spec.Affinity = util.ReplaceDaemonSetPodNodeNameNodeAffinity(
 					podTemplate.Spec.Affinity, nodesNeedingDaemonPods[ix])
 
-				err := dsc.podControl.CreatePodsWithControllerRef(ds.Namespace, podTemplate,
+				err := dsc.podControl.CreatePodsWithControllerRef(context.Background(), ds.Namespace, podTemplate,
 					ds, metav1.NewControllerRef(ds, controllerKind))
 
 				if err != nil {

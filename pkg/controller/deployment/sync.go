@@ -21,6 +21,8 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
+	"context"
+	"k8s.io/kubernetes/pkg/util/trace"
 
 	apps "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
@@ -183,6 +185,11 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 		return nil, nil
 	}
 
+
+	ctx, span := traceutil.StartSpanFromObject(context.Background(), d, "deployment.CreateReplicaSet")
+	defer span.End()
+
+
 	// new ReplicaSet does not exist, create one.
 	newRSTemplate := *d.Spec.Template.DeepCopy()
 	podTemplateSpecHash := controller.ComputeHash(&newRSTemplate, d.Status.CollisionCount)
@@ -215,11 +222,20 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 	*(newRS.Spec.Replicas) = newReplicasCount
 	// Set new replica set's annotation
 	deploymentutil.SetNewReplicaSetAnnotations(d, &newRS, newRevision, false, maxRevHistoryLengthInChars)
+	traceutil.EncodeContextIntoObject(ctx, &newRS)
 	// Create the new ReplicaSet. If it already exists, then we need to check for possible
 	// hash collisions. If there is any other error, we need to report it in the status of
 	// the Deployment.
 	alreadyExists := false
-	createdRS, err := dc.client.AppsV1().ReplicaSets(d.Namespace).Create(&newRS)
+	// createdRS, err := dc.client.AppsV1().ReplicaSets(d.Namespace).Create(&newRS)
+	createdRS := &apps.ReplicaSet{}
+	err = dc.client.AppsV1().RESTClient().Post().
+		Namespace(d.Namespace).
+		Resource("replicasets").
+		Context(ctx).
+		Body(&newRS).
+		Do().
+		Into(createdRS)
 	switch {
 	// We may end up hitting this due to a slow cache or a fast resync of the Deployment.
 	case errors.IsAlreadyExists(err):

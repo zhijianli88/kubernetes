@@ -28,6 +28,7 @@ go_library(
         "//pkg/scheduler/internal/queue:go_default_library",
         "//pkg/scheduler/metrics:go_default_library",
         "//pkg/scheduler/volumebinder:go_default_library",
+        "//pkg/util/trace:go_default_library",
         "//staging/src/k8s.io/api/core/v1:go_default_library",
         "//staging/src/k8s.io/api/storage/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/api/errors:go_default_library",
@@ -46,6 +47,7 @@ go_library(
         "//staging/src/k8s.io/client-go/listers/policy/v1beta1:go_default_library",
         "//staging/src/k8s.io/client-go/tools/cache:go_default_library",
         "//staging/src/k8s.io/client-go/tools/events:go_default_library",
+        "//vendor/go.opencensus.io/trace:go_default_library",
         "//vendor/k8s.io/klog:go_default_library",
     ],
 )

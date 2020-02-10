@@ -1,0 +1,6 @@
+
+I0207 16:33:34.499593   17666 controller_utils.go:599] createPods tr.span TraceID : ce7900ba6c5002e5be1e9c3eae564822
+I0207 16:33:34.499627   17666 controller_utils.go:600] createPods tr.span SpanID : 238151cd5598f141
+
+I0207 16:33:34.656775   17667 scheduler.go:588] ScheduleOne pod TraceID : ce7900ba6c5002e5be1e9c3eae564822
+I0207 16:33:34.656791   17667 scheduler.go:589] ScheduleOne pod SpanID : 96566279a419593a

@@ -2096,6 +2096,12 @@ func (kl *Kubelet) HandlePodAdditions(ctx context.Context, pods []*v1.Pod) {
 			return nil
 		},
 	)
+
+	// // Test about propagation by resource
+	// _, schedulePodSpan := traceutil.StartSpanFromObject(ctx, pods[0], "kube-scheduler.SchedulePod")
+	// defer schedulePodSpan.End()
+	// klog.Infof("ScheduleOne pod TraceID : %s", schedulePodSpan.SpanContext().TraceID)
+	// klog.Infof("ScheduleOne pod SpanID : %s", schedulePodSpan.SpanContext().SpanID)
 	
 
 
