@@ -21,6 +21,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+KUBE_BUILD_HYPERKUBE="No"
+
 KUBE_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 source "${KUBE_ROOT}/build/common.sh"
 source "${KUBE_ROOT}/build/lib/release.sh"
@@ -31,7 +33,7 @@ if [[ "${KUBE_BUILD_CONFORMANCE}" =~ [yY] ]]; then
 fi
 
 # TODO(dims): Remove this when we get rid of hyperkube image
-CMD_TARGETS="${CMD_TARGETS} cmd/kubelet cmd/kubectl cmd/kubeadm"
+CMD_TARGETS="cmd/kube-apiserver cmd/kube-controller-manager cmd/kube-scheduler cmd/kube-proxy cmd/kubelet cmd/kubectl cmd/kubeadm"
 
 kube::build::verify_prereqs
 kube::build::build_image
