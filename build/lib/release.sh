@@ -359,7 +359,7 @@ function kube::release::create_docker_images_for_server() {
       local docker_build_path="${binary_dir}/${binary_name}.dockerbuild"
       local docker_file_path="${docker_build_path}/Dockerfile"
       local binary_file_path="${binary_dir}/${binary_name}"
-      local docker_image_tag="${docker_registry}/${binary_name}-${arch}:${docker_tag}"
+      local docker_image_tag="${docker_registry}/${binary_name}:${docker_tag}"
 
       kube::log::status "Starting docker build for image: ${binary_name}-${arch}"
       (
