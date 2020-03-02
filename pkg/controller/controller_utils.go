@@ -31,10 +31,8 @@ import (
 	// "go.opentelemetry.io/otel/api/global"
 	// "go.opentelemetry.io/otel/exporter/trace/stdout"
 	// sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"k8s.io/kubernetes/pkg/util/trace"
 	"go.opencensus.io/trace"
-
-	
+	traceutil "k8s.io/kubernetes/pkg/util/trace"
 
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -595,19 +593,23 @@ func (r RealPodControl) createPods(ctx context.Context, nodeName, namespace stri
 		return err
 	}
 
-	c, span := trace.StartSpan(ctx, "", trace.WithSampler(trace.AlwaysSample()))
+	klog.Infof("TraceID propagation test controller_utils.go start")
+	// c, span := traceutil.StartSpanFromObject(context.Background(), object, "replicaset.CreatePod")
+	c, span := trace.StartSpan(ctx, "replicaset.CreatePod", trace.WithSampler(trace.AlwaysSample()))
+	defer span.End()
 	klog.Infof("createPods tr.span TraceID : %s", span.SpanContext().TraceID)
-	klog.Infof("createPods tr.span SpanID : %s", span.SpanContext().SpanID)
+	klog.Infof("TraceID propagation test controller_utils.go end")
+	// klog.Infof("createPods tr.span SpanID : %s", span.SpanContext().SpanID)
 	traceutil.EncodeContextIntoObject(c, pod)
 
-	traceutil.EncodeContextIntoObject(ctx, pod)
+	// traceutil.EncodeContextIntoObject(ctx, pod)
 	if len(nodeName) != 0 {
 		pod.Spec.NodeName = nodeName
 	}
 	if len(labels.Set(pod.Labels)) == 0 {
 		return fmt.Errorf("unable to create pods, no labels")
 	}
-	
+
 	// test about propagation
 	//newPod, err := r.KubeClient.CoreV1().Pods(namespace).Create(pod)
 	// // OpenTelemetry test

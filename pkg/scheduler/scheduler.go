@@ -24,7 +24,7 @@ import (
 	"os"
 	"time"
 
-	"k8s.io/kubernetes/pkg/util/trace"
+	traceutil "k8s.io/kubernetes/pkg/util/trace"
 	//"go.opencensus.io/trace"
 
 	v1 "k8s.io/api/core/v1"
@@ -578,17 +578,16 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 	// klog.Infof("ScheduleOne tr.span SpanID : %s", span.SpanContext().SpanID)
 	// traceutil.EncodeContextIntoObject(c, pod)
 
-
 	klog.V(3).Infof("Attempting to schedule pod: %v/%v", pod.Namespace, pod.Name)
+	klog.Infof("TraceID propagation test scheduler.go start")
 	_, schedulePodSpan := traceutil.StartSpanFromObject(ctx, pod, "kube-scheduler.SchedulePod")
 	defer schedulePodSpan.End()
 
-
 	//klog.V(2).Infof("HandlePodAdditions:TraceID:", span.SpanContext().TraceIDString())
 	klog.Infof("ScheduleOne pod TraceID : %s", schedulePodSpan.SpanContext().TraceID)
-	klog.Infof("ScheduleOne pod SpanID : %s", schedulePodSpan.SpanContext().SpanID)
+	klog.Infof("TraceID propagation test scheduler.go end")
+	// klog.Infof("ScheduleOne pod SpanID : %s", schedulePodSpan.SpanContext().SpanID)
 	//klog.Infof("ScheduleOne pod SpanID : %s", cont.SpanContext().SpanID)
-
 
 	// Synchronously attempt to find a fit for the pod.
 	start := time.Now()

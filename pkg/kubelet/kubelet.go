@@ -123,11 +123,12 @@ import (
 	"k8s.io/kubernetes/pkg/volume/util/volumepathhandler"
 
 	// OpenTelemetry test
-	"log"
 
-	"go.opentelemetry.io/otel/api/global"
-	"go.opentelemetry.io/otel/exporter/trace/stdout"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	// "go.opentelemetry.io/otel/api/global"
+	// "go.opentelemetry.io/otel/exporter/trace/stdout"
+	// sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opencensus.io/trace"
+	traceutil "k8s.io/kubernetes/pkg/util/trace"
 )
 
 const (
@@ -1873,18 +1874,18 @@ func (kl *Kubelet) syncLoop(updates <-chan kubetypes.PodUpdate, handler SyncHand
 	}
 }
 
-func initTracer() {
-	exporter, err := stdout.NewExporter(stdout.Options{PrettyPrint: true})
-	if err != nil {
-		log.Fatal(err)
-	}
-	tp, err := sdktrace.NewProvider(sdktrace.WithConfig(sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
-		sdktrace.WithSyncer(exporter))
-	if err != nil {
-		log.Fatal(err)
-	}
-	global.SetTraceProvider(tp)
-}
+// func initTracer() {
+// 	exporter, err := stdout.NewExporter(stdout.Options{PrettyPrint: true})
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	tp, err := sdktrace.NewProvider(sdktrace.WithConfig(sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
+// 		sdktrace.WithSyncer(exporter))
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	global.SetTraceProvider(tp)
+// }
 
 // syncLoopIteration reads from various channels and dispatches pods to the
 // given handler.
@@ -1930,10 +1931,14 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 		}
 
 		// OpenTelemetry test
-		initTracer()
-		tracer := global.TraceProvider().Tracer("ex.com/basic")
-		ctx, span := tracer.Start(context.Background(), "test")
+		// initTracer()
+		// tracer := global.TraceProvider().Tracer("ex.com/basic")
+		// ctx, span := tracer.Start(context.Background(), "test")
+		klog.Infof("TraceID propagation test kubelet.go syncLoopIteration start")
+		ctx, span := traceutil.StartSpanFromObject(context.Background(), u.Pods[0], "kubelet.CreatePod")
 		defer span.End()
+		klog.Infof("kubelet.CreatePod TraceID : %s", span.SpanContext().TraceID)
+		klog.Infof("TraceID propagation test kubelet.go syncLoopIteration end")
 
 		switch u.Op {
 		case kubetypes.ADD:
@@ -1945,8 +1950,9 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 			ctx = context.WithValue(ctx, "aa", "it is ctx")
 			klog.V(2).Infof("HandlePodAdditions", ctx.Value("aa"))
 			//span.SpanContext()
-			klog.V(2).Infof("HandlePodAdditions:TraceID:", span.SpanContext().TraceIDString())
-			klog.V(2).Infof("HandlePodAdditions:SpanID:", span.SpanContext().SpanIDString())
+			// klog.V(2).Infof("HandlePodAdditions:TraceID:", span.SpanContext().TraceIDString())
+
+			// klog.V(2).Infof("HandlePodAdditions:SpanID:", span.SpanContext().SpanIDString())
 			//klog.V(2).Infof("HandlePodAdditions:TraceID: %s", span.SpanContext().TraceID)
 			handler.HandlePodAdditions(ctx, u.Pods)
 			//handler.HandlePodAdditions(u.Pods)
@@ -2088,23 +2094,25 @@ func (kl *Kubelet) HandlePodAdditions(ctx context.Context, pods []*v1.Pod) {
 	sort.Sort(sliceutils.PodsByCreationTime(pods))
 
 	//Test about propagation of ctx
-	klog.V(2).Infof("at Handle %s", ctx.Value("TraceID")) // ctx is propagated OK
-	klog.V(2).Infof("at Handle %s", ctx.Value("")) // ctx is propagated OK
-	tracer := global.TraceProvider().Tracer("ex.com/basic")
-	tracer.WithSpan(ctx, "foo", 
-		func(ctx context.Context) error{
-			return nil
-		},
-	)
+	klog.Infof("TraceID propagation test kubelet.go HandlePodAdditions start")
+	// klog.V(2).Infof("at Handle %s", ctx.Value("TraceID")) // ctx is propagated OK
+	// klog.V(2).Infof("at Handle %s", ctx.Value(""))        // ctx is propagated OK
+	// tracer := global.TraceProvider().Tracer("ex.com/basic")
+	// tracer.WithSpan(ctx, "foo",
+	// 	func(ctx context.Context) error {
+	// 		return nil
+	// 	},
+	// )
+	_, span := trace.StartSpan(ctx, "HandlePodAdditions", trace.WithSampler(trace.AlwaysSample()))
+	defer span.End()
+	klog.Infof("HandlePodAdditions TraceID : %s", span.SpanContext().TraceID)
+	klog.Infof("TraceID propagation test kubelet.go HandlePodAdditions end")
 
 	// // Test about propagation by resource
 	// _, schedulePodSpan := traceutil.StartSpanFromObject(ctx, pods[0], "kube-scheduler.SchedulePod")
 	// defer schedulePodSpan.End()
 	// klog.Infof("ScheduleOne pod TraceID : %s", schedulePodSpan.SpanContext().TraceID)
 	// klog.Infof("ScheduleOne pod SpanID : %s", schedulePodSpan.SpanContext().SpanID)
-	
-
-
 
 	for _, pod := range pods {
 		existingPods := kl.podManager.GetPods()

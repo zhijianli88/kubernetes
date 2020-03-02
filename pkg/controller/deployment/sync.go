@@ -17,15 +17,17 @@ limitations under the License.
 package deployment
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"sort"
 	"strconv"
-	"context"
-	"k8s.io/kubernetes/pkg/util/trace"
+
+	"go.opencensus.io/trace"
+	traceutil "k8s.io/kubernetes/pkg/util/trace"
 
 	apps "k8s.io/api/apps/v1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
@@ -185,10 +187,12 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 		return nil, nil
 	}
 
-
-	ctx, span := traceutil.StartSpanFromObject(context.Background(), d, "deployment.CreateReplicaSet")
+	klog.Infof("TraceID propagation test sync.go start")
+	ctx, span := trace.StartSpan(context.Background(), "deployment.CreateReplicaSet", trace.WithSampler(trace.AlwaysSample()))
+	// ctx, span := traceutil.StartSpanFromObject(context.Background(), d, "deployment.CreateReplicaSet")
 	defer span.End()
-
+	klog.Infof("deployment.CreateReplicaSet TraceID : %s", span.SpanContext().TraceID)
+	klog.Infof("TraceID propagation test sync.go end")
 
 	// new ReplicaSet does not exist, create one.
 	newRSTemplate := *d.Spec.Template.DeepCopy()
