@@ -29,6 +29,7 @@ import (
 	_ "k8s.io/component-base/metrics/prometheus/clientgo" // load all the prometheus client-go plugin
 	_ "k8s.io/component-base/metrics/prometheus/version"  // for version metric registration
 	"k8s.io/kubernetes/cmd/kube-controller-manager/app"
+	"k8s.io/utils/trace"
 )
 
 func main() {
@@ -42,8 +43,15 @@ func main() {
 	// utilflag.InitFlags()
 	logs.InitLogs()
 	defer logs.FlushLogs()
+	trace.InitFlags(nil)
+	err := command.Execute()
 
-	if err := command.Execute(); err != nil {
+	initTrace := trace.New("New trace", trace.Field{"name", os.Args[0]})
+	time.Sleep(time.Second)
+	initTrace.Step("trace sleep 1")
+	initTrace.Log()
+
+	if err != nil {
 		os.Exit(1)
 	}
 }

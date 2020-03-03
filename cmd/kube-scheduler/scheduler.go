@@ -23,10 +23,12 @@ import (
 
 	"github.com/spf13/pflag"
 
+	"fmt"
 	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/component-base/logs"
 	_ "k8s.io/component-base/metrics/prometheus/clientgo"
 	"k8s.io/kubernetes/cmd/kube-scheduler/app"
+	"k8s.io/utils/trace"
 )
 
 func main() {
@@ -39,10 +41,19 @@ func main() {
 	// normalize func and add the go flag set by hand.
 	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
 	// utilflag.InitFlags()
+	trace.InitFlags(nil)
 	logs.InitLogs()
 	defer logs.FlushLogs()
 
-	if err := command.Execute(); err != nil {
+	err := command.Execute()
+
+	initTrace := trace.New("New trace", trace.Field{"name", os.Args[0]})
+	fmt.Println("Sleep 1 Second")
+	time.Sleep(time.Second)
+	initTrace.Step("trace sleep 1")
+	initTrace.Log()
+
+	if err != nil {
 		os.Exit(1)
 	}
 }

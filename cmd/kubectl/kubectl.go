@@ -30,6 +30,7 @@ import (
 
 	// Import to initialize client auth plugins.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/utils/trace"
 )
 
 func main() {
@@ -44,9 +45,16 @@ func main() {
 	pflag.CommandLine.AddGoFlagSet(goflag.CommandLine)
 	// cliflag.InitFlags()
 	logs.InitLogs()
+	trace.InitFlags(nil)
 	defer logs.FlushLogs()
+	err := command.Execute()
 
-	if err := command.Execute(); err != nil {
+	initTrace := trace.New("New trace", trace.Field{"name", os.Args[0]})
+	time.Sleep(time.Second)
+	initTrace.Step("trace sleep 1")
+	initTrace.Log()
+
+	if err != nil {
 		os.Exit(1)
 	}
 }

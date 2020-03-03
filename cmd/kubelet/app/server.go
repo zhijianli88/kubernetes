@@ -102,6 +102,7 @@ import (
 	"k8s.io/kubernetes/pkg/volume/util/hostutil"
 	"k8s.io/kubernetes/pkg/volume/util/subpath"
 	"k8s.io/utils/exec"
+	"k8s.io/utils/trace"
 )
 
 const (
@@ -275,6 +276,7 @@ HTTP server: The kubelet can also listen for HTTP and respond to a simple API
 		},
 	}
 
+	trace.InitFlags(cleanFlagSet)
 	// keep cleanFlagSet separate, so Cobra doesn't pollute it with the global flags
 	kubeletFlags.AddFlags(cleanFlagSet)
 	options.AddKubeletConfigFlags(cleanFlagSet, kubeletConfig)

@@ -24,13 +24,17 @@ import (
 
 	"k8s.io/klog"
 
+	"fmt"
 	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/kubernetes/cmd/kubeadm/app/cmd"
+	"k8s.io/utils/trace"
+	"time"
 )
 
 // Run creates and executes new kubeadm command
 func Run() error {
 	klog.InitFlags(nil)
+	trace.InitFlags(nil)
 	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
@@ -47,5 +51,12 @@ func Run() error {
 	pflag.CommandLine.MarkHidden("vmodule")
 
 	cmd := cmd.NewKubeadmCommand(os.Stdin, os.Stdout, os.Stderr)
-	return cmd.Execute()
+	ret := cmd.Execute()
+
+	initTrace := trace.New("New trace", trace.Field{"name", os.Args[0]})
+	fmt.Println("Sleep 1 Second")
+	time.Sleep(time.Second)
+	initTrace.Step("trace sleep 1")
+	initTrace.Log()
+	return ret
 }

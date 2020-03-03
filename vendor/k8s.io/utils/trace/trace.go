@@ -19,6 +19,7 @@ package trace
 import (
 	"bytes"
 	"fmt"
+	flag "github.com/spf13/pflag"
 	"math/rand"
 	"time"
 
@@ -57,12 +58,24 @@ type Trace struct {
 	fields    []Field
 	startTime time.Time
 	steps     []traceStep
+	enabled   bool
 }
 
 // New creates a Trace with the specified name. The name identifies the operation to be traced. The
 // Fields add key value pairs to provide additional details about the trace, such as operation inputs.
 func New(name string, fields ...Field) *Trace {
-	return &Trace{name: name, startTime: time.Now(), fields: fields}
+	return &Trace{name: name, startTime: time.Now(), enabled: traceSwitch.enabled, fields: fields}
+}
+
+var traceSwitch Trace
+
+// InitFlags is for explicitly initializing the flags.
+func InitFlags(flagset *flag.FlagSet) {
+	if flagset == nil {
+		flagset = flag.CommandLine
+	}
+
+	flagset.BoolVar(&traceSwitch.enabled, "trace", true, "If true, enable tace log")
 }
 
 // Step adds a new step with a specific message. Call this at the end of an execution step to record
@@ -79,7 +92,11 @@ func (t *Trace) Step(msg string, fields ...Field) {
 // Log is used to dump all the steps in the Trace
 func (t *Trace) Log() {
 	// an explicit logging request should dump all the steps out at the higher level
-	t.logWithStepThreshold(0)
+	if traceSwitch.enabled {
+		t.logWithStepThreshold(0)
+	} else {
+		fmt.Println("=====Trace log is disabled=====")
+	}
 }
 
 func (t *Trace) logWithStepThreshold(stepThreshold time.Duration) {
