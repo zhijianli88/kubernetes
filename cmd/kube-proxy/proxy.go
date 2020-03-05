@@ -29,6 +29,7 @@ import (
 	_ "k8s.io/component-base/metrics/prometheus/restclient" // for client metric registration
 	_ "k8s.io/component-base/metrics/prometheus/version"    // for version metric registration
 	"k8s.io/kubernetes/cmd/kube-proxy/app"
+	"k8s.io/kubernetes/pkg/util/trace"
 )
 
 func main() {
@@ -44,6 +45,7 @@ func main() {
 	// utilflag.InitFlags()
 	logs.InitLogs()
 	defer logs.FlushLogs()
+	traceutil.InitFlags(nil)
 
 	if err := command.Execute(); err != nil {
 		os.Exit(1)

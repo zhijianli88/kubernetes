@@ -26,11 +26,13 @@ import (
 
 	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/kubernetes/cmd/kubeadm/app/cmd"
+	"k8s.io/kubernetes/pkg/util/trace"
 )
 
 // Run creates and executes new kubeadm command
 func Run() error {
 	klog.InitFlags(nil)
+	traceutil.InitFlags(nil)
 	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
