@@ -32,7 +32,7 @@ func InitializeExporter(service string) {
 	}
 	// Only sample when the propagated parent SpanContext is sampled
 	// Use ProbabilitySampler because it propagates the parent sampling decision.
-    trace.ApplyConfig(trace.Config{DefaultSampler: trace.ProbabilitySampler(0)})
+	trace.ApplyConfig(trace.Config{DefaultSampler: trace.ProbabilitySampler(0)})
 
 	trace.RegisterExporter(exp)
 
@@ -43,7 +43,7 @@ func InitializeExporter(service string) {
 // constructs a new Span from this information.  It mirrors trace.StartSpan, but for kubernetes objects.
 func StartSpanFromObject(ctx context.Context, tracedResource meta.Object, name string) (context.Context, *trace.Span) {
 	klog.Infof("OC trace:StartSpanFromObject %s", string(name))
-	spanFromEncodedContext, ok := spanContextFromObject(tracedResource)
+	spanFromEncodedContext, ok := SpanContextFromObject(tracedResource)
 	if !ok {
 		return ctx, &trace.Span{}
 	}
@@ -51,8 +51,8 @@ func StartSpanFromObject(ctx context.Context, tracedResource meta.Object, name s
 	return trace.StartSpanWithRemoteParent(ctx, name, spanFromEncodedContext)
 }
 
-// spanContextFromObject takes an object to extract an encoded SpanContext from and returns the decoded SpanContext
-func spanContextFromObject(tracedResource meta.Object) (trace.SpanContext, bool) {
+// SpanContextFromObject takes an object to extract an encoded SpanContext from and returns the decoded SpanContext
+func SpanContextFromObject(tracedResource meta.Object) (trace.SpanContext, bool) {
 	tracedResourceAnnotations := tracedResource.GetAnnotations()
 	embeddedSpanContext, ok := tracedResourceAnnotations[TraceAnnotationKey]
 	if !ok {
@@ -70,21 +70,21 @@ func spanContextFromObject(tracedResource meta.Object) (trace.SpanContext, bool)
 
 // EncodeContextIntoObject encodes the SpanContext contained in the context into the provided object
 func EncodeContextIntoObject(ctx context.Context, tracedResource meta.Object) {
-	klog.Infof("OC trace:EncodeContextIntoObject") 
+	klog.Infof("OC trace:EncodeContextIntoObject")
 	span := trace.FromContext(ctx)
 	if span != nil {
 		encodeSpanContextIntoObject(span.SpanContext(), tracedResource)
-		klog.Infof("OC trace:EncodeContextIntoObject : TraceID:%s",span.SpanContext().TraceID)
+		klog.Infof("OC trace:EncodeContextIntoObject : TraceID:%s", span.SpanContext().TraceID)
 		tracedResourceAnnotations := tracedResource.GetAnnotations()
 		klog.Infof("OC trace:EncodeContextIntoObject : Annotation?: %s", tracedResourceAnnotations[TraceAnnotationKey])
 	}
 }
 
 func RemoveSpanContextFromObject(tracedResource meta.Object) {
-	klog.Infof("OC trace:RemoveSpanContextFromObject") 
+	klog.Infof("OC trace:RemoveSpanContextFromObject")
 
 	tracedResourceAnnotations := tracedResource.GetAnnotations()
-	klog.Infof("OC trace:RemoveSpanContextFromObject : Annotation?: %s", tracedResourceAnnotations[TraceAnnotationKey]) 
+	klog.Infof("OC trace:RemoveSpanContextFromObject : Annotation?: %s", tracedResourceAnnotations[TraceAnnotationKey])
 	delete(tracedResourceAnnotations, TraceAnnotationKey)
 	tracedResource.SetAnnotations(tracedResourceAnnotations)
 }
@@ -103,9 +103,6 @@ func encodeSpanContextIntoObject(ctx trace.SpanContext, tracedResource meta.Obje
 	return
 }
 
-
-
-
 // import (
 // 	"context"
 // 	"encoding/base64"
@@ -115,10 +112,10 @@ func encodeSpanContextIntoObject(ctx trace.SpanContext, tracedResource meta.Obje
 
 // 	// "go.opencensus.io/trace"
 // 	// "go.opencensus.io/trace/propagation"
-	
+
 // 	"k8s.io/klog"
 // 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
-	
+
 // 	"go.opentelemetry.io/otel/api/core"
 // 	"go.opentelemetry.io/otel/api/global"
 // 	"go.opentelemetry.io/otel/api/propagators"
@@ -128,7 +125,6 @@ func encodeSpanContextIntoObject(ctx trace.SpanContext, tracedResource meta.Obje
 
 // 	"go.opentelemetry.io/otel/exporter/trace/stdout"
 // )
-
 
 // // TraceAnnotationKey is the annotation name where span context should be found
 // const TraceAnnotationKey string = "trace.kubernetes.io/context"

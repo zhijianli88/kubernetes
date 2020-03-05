@@ -37,6 +37,7 @@ import (
 
 	"context"
 
+	"go.opencensus.io/trace"
 	traceutil "k8s.io/kubernetes/pkg/util/trace"
 
 	apps "k8s.io/api/apps/v1"
@@ -562,7 +563,20 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*v1.Pod, rs *apps
 		// into a performance bottleneck. We should generate a UID for the pod
 		// beforehand and store it via ExpectCreations.
 		rsc.expectations.ExpectCreations(rsKey, diff)
-		klog.V(2).Infof("Too few replicas for %v %s/%s, need %d, creating %d", rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
+
+		// Suppose ourFlag is true
+		ourFlag := true
+
+		if ourFlag {
+			spanContext, ok := traceutil.SpanContextFromObject(rs)
+			if !ok {
+				spanContext = trace.SpanContext{}
+			}
+			klog.V(2).Infof("request-id=%s, Too few replicas for %v %s/%s, need %d, creating %d", spanContext.TraceID, rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
+		} else {
+			klog.V(2).Infof("Too few replicas for %v %s/%s, need %d, creating %d", rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
+		}
+
 		// Batch the pod creates. Batch sizes start at SlowStartInitialBatchSize
 		// and double with each successful iteration in a kind of "slow start".
 		// This handles attempts to start large numbers of pods that would
