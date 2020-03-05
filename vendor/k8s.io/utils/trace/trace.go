@@ -135,6 +135,11 @@ func (t *Trace) logWithStepThreshold(stepThreshold time.Duration) {
 
 // LogIfLong is used to dump steps that took longer than its share
 func (t *Trace) LogIfLong(threshold time.Duration) {
+	if traceSwitch.enabled == false {
+		klog.Info("lizhijian: =====Trace log is disabled=====")
+		return
+	}
+
 	if time.Since(t.startTime) >= threshold {
 		// if any step took more than it's share of the total allowed time, it deserves a higher log level
 		stepThreshold := threshold / time.Duration(len(t.steps)+1)
