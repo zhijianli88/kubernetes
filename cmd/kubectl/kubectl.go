@@ -30,6 +30,7 @@ import (
 
 	// Import to initialize client auth plugins.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/kubernetes/pkg/util/trace"
 )
 
 func main() {
@@ -45,6 +46,7 @@ func main() {
 	// cliflag.InitFlags()
 	logs.InitLogs()
 	defer logs.FlushLogs()
+	traceutil.InitFlags(nil)
 
 	if err := command.Execute(); err != nil {
 		os.Exit(1)

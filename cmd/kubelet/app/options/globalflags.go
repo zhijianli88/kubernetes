@@ -32,6 +32,7 @@ import (
 	// ensure libs have a chance to globally register their flags
 	_ "k8s.io/kubernetes/pkg/credentialprovider/azure"
 	_ "k8s.io/kubernetes/pkg/credentialprovider/gcp"
+	"k8s.io/kubernetes/pkg/util/trace"
 )
 
 // AddGlobalFlags explicitly registers flags that libraries (glog, verflag, etc.) register
@@ -43,6 +44,7 @@ func AddGlobalFlags(fs *pflag.FlagSet) {
 	addCredentialProviderFlags(fs)
 	verflag.AddFlags(fs)
 	logs.AddFlags(fs)
+	traceutil.InitFlags(fs)
 }
 
 // normalize replaces underscores with hyphens

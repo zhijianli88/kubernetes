@@ -642,6 +642,7 @@ func (r RealPodControl) createPods(ctx context.Context, nodeName, namespace stri
 		return nil
 	}
 	klog.V(4).Infof("Controller %v created pod %v", accessor.GetName(), newPod.Name)
+	traceutil.LogReqIDFromContext(ctx, pod, "Controller %v created pod %v", accessor.GetName(), newPod.Name)
 	r.Recorder.Eventf(object, v1.EventTypeNormal, SuccessfulCreatePodReason, "Created pod: %v", newPod.Name)
 
 	return nil

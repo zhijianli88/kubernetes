@@ -1939,6 +1939,7 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 		defer span.End()
 		klog.Infof("kubelet.CreatePod TraceID : %s", span.SpanContext().TraceID)
 		klog.Infof("TraceID propagation test kubelet.go syncLoopIteration end")
+		traceutil.LogReqIDFromObject(context.Background(), u.Pods[0], "I dont know whats wrong")
 
 		switch u.Op {
 		case kubetypes.ADD:

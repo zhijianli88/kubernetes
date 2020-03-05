@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/pflag"
 	"k8s.io/component-base/logs"
 	"k8s.io/klog"
+	"k8s.io/kubernetes/pkg/util/trace"
 )
 
 // AddGlobalFlags explicitly registers flags that libraries (klog, verflag, etc.) register
@@ -33,6 +34,7 @@ import (
 func AddGlobalFlags(fs *pflag.FlagSet, name string) {
 	addKlogFlags(fs)
 	logs.AddFlags(fs)
+	traceutil.InitFlags(fs)
 
 	fs.BoolP("help", "h", false, fmt.Sprintf("help for %s", name))
 }

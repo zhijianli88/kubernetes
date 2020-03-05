@@ -579,6 +579,7 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 	// traceutil.EncodeContextIntoObject(c, pod)
 
 	klog.V(3).Infof("Attempting to schedule pod: %v/%v", pod.Namespace, pod.Name)
+	traceutil.LogReqIDFromObject(ctx, pod, "Attempting to schedule pod: %v/%v", pod.Namespace, pod.Name)
 	klog.Infof("TraceID propagation test scheduler.go start")
 	_, schedulePodSpan := traceutil.StartSpanFromObject(ctx, pod, "kube-scheduler.SchedulePod")
 	defer schedulePodSpan.End()
