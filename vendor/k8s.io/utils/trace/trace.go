@@ -95,7 +95,7 @@ func (t *Trace) Log() {
 	if traceSwitch.enabled {
 		t.logWithStepThreshold(0)
 	} else {
-		fmt.Println("=====Trace log is disabled=====")
+		klog.Info("lizhijian: =====Trace log is disabled=====")
 	}
 }
 
@@ -110,7 +110,7 @@ func (t *Trace) logWithStepThreshold(stepThreshold time.Duration) {
 		writeFields(&buffer, t.fields)
 		buffer.WriteString(" ")
 	}
-	buffer.WriteString(fmt.Sprintf("(started: %v) (total time: %v):\n", t.startTime, totalTime))
+	buffer.WriteString(fmt.Sprintf("lizhijian: (started: %v) (total time: %v):\n", t.startTime, totalTime))
 	lastStepTime := t.startTime
 	for _, step := range t.steps {
 		stepDuration := step.stepTime.Sub(lastStepTime)
