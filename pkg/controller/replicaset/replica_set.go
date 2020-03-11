@@ -562,8 +562,12 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*v1.Pod, rs *apps
 		// into a performance bottleneck. We should generate a UID for the pod
 		// beforehand and store it via ExpectCreations.
 		rsc.expectations.ExpectCreations(rsKey, diff)
-		klog.V(2).Infof("Too few replicas for %v %s/%s, need %d, creating %d", rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
-		traceutil.LogReqIDFromObject(context.Background(), rs, "Too few replicas for %v %s/%s, need %d, creating %d", rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
+		if traceutil.Enabled() {
+			request_id := traceutil.ReqIDFromObj(context.Background(), rs) // rely on KEP650
+			klog.V(2).Infof("Request-ID[%s]: Too few replicas for %v %s/%s, need %d, creating %d", request_id, rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
+		} else {
+			klog.V(2).Infof("Too few replicas for %v %s/%s, need %d, creating %d", rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
+		}
 		// Batch the pod creates. Batch sizes start at SlowStartInitialBatchSize
 		// and double with each successful iteration in a kind of "slow start".
 		// This handles attempts to start large numbers of pods that would

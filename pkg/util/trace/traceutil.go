@@ -29,6 +29,10 @@ type RequestID struct {
 
 var requestID RequestID
 
+func Enabled() bool {
+	return requestID.enabled
+}
+
 func InitFlags(flagset *flag.FlagSet) {
 	if flagset == nil {
 		flagset = flag.CommandLine
@@ -55,13 +59,19 @@ func InitializeExporter(service string) {
 	return
 }
 
+func ReqIDFromObj(ctx context.Context, tracedResource meta.Object) trace.TraceID {
+	ctx, span := StartSpanFromObject(ctx, tracedResource, "object")
+	defer span.End()
+	EncodeContextIntoObject(ctx, tracedResource)
+
+	return span.SpanContext().TraceID
+}
+
 func LogReqIDFromObject(ctx context.Context, tracedResource meta.Object, format string, args ...interface{}) {
 	if requestID.enabled {
 		var buffer bytes.Buffer
-		ctx, span := StartSpanFromObject(ctx, tracedResource, "object")
-		defer span.End()
-		EncodeContextIntoObject(ctx, tracedResource)
-		buffer.WriteString(fmt.Sprintf("RequestID[%s]: ", span.SpanContext().TraceID))
+		reqid := ReqIDFromCtx(ctx, tracedResource)
+		buffer.WriteString(fmt.Sprintf("RequestID[%s]: ", reqid))
 		buffer.WriteString(fmt.Sprintf(format, args...))
 		klog.Info(buffer.String())
 	} else {
@@ -69,13 +79,19 @@ func LogReqIDFromObject(ctx context.Context, tracedResource meta.Object, format 
 	}
 }
 
+func ReqIDFromCtx(ctx context.Context, tracedResource meta.Object) trace.TraceID {
+	c, span := trace.StartSpan(ctx, "name", trace.WithSampler(trace.AlwaysSample()))
+	defer span.End()
+	EncodeContextIntoObject(c, tracedResource)
+
+	return span.SpanContext().TraceID
+}
+
 func LogReqIDFromContext(ctx context.Context, tracedResource meta.Object, format string, args ...interface{}) {
 	if requestID.enabled {
 		var buffer bytes.Buffer
-		c, span := trace.StartSpan(ctx, "name", trace.WithSampler(trace.AlwaysSample()))
-		defer span.End()
-		EncodeContextIntoObject(c, tracedResource)
-		buffer.WriteString(fmt.Sprintf("RequestID[%s]: ", span.SpanContext().TraceID))
+		reqid := ReqIDFromCtx(ctx, tracedResource)
+		buffer.WriteString(fmt.Sprintf("RequestID[%s]: ", reqid))
 		buffer.WriteString(fmt.Sprintf(format, args...))
 		klog.Info(buffer.String())
 	} else {
