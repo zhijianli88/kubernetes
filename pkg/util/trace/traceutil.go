@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/base64"
 	"log"
+	"sync"
 
 	"contrib.go.opencensus.io/exporter/ocagent"
 
@@ -19,6 +20,8 @@ import (
 
 // TraceAnnotationKey is the annotation name where span context should be found
 const TraceAnnotationKey string = "trace.kubernetes.io/context"
+
+var lock = sync.RWMutex{}
 
 // InitializeExporter takes a ServiceType and sets the global OpenCensus exporter
 // to export to that service on a specified Zipkin instance
@@ -54,6 +57,8 @@ func StartSpanFromObject(ctx context.Context, tracedResource meta.Object, name s
 // SpanContextFromObject takes an object to extract an encoded SpanContext from and returns the decoded SpanContext
 func SpanContextFromObject(tracedResource meta.Object) (trace.SpanContext, bool) {
 	tracedResourceAnnotations := tracedResource.GetAnnotations()
+	lock.RLock()
+	defer lock.RUnlock()
 	embeddedSpanContext, ok := tracedResourceAnnotations[TraceAnnotationKey]
 	if !ok {
 		return trace.SpanContext{}, false
@@ -97,6 +102,8 @@ func encodeSpanContextIntoObject(ctx trace.SpanContext, tracedResource meta.Obje
 	rawContextBytes := propagation.Binary(ctx)
 	encodedContext := base64.StdEncoding.EncodeToString(rawContextBytes)
 
+	lock.Lock()
+	defer lock.Unlock()
 	tracedResourceAnnotations[TraceAnnotationKey] = encodedContext
 	tracedResource.SetAnnotations(tracedResourceAnnotations)
 
