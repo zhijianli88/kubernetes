@@ -371,7 +371,6 @@ cleanup()
   if [[ "${PRESERVE_ETCD}" == "false" ]]; then
     [[ -n "${ETCD_DIR-}" ]] && kube::etcd::clean_etcd_dir
   fi
-  exit 0
 }
 
 # Check if all processes are still running. Prints a warning once each time
@@ -1020,7 +1019,7 @@ echo "Detected host and ready to start services.  Doing some housekeeping first.
 echo "Using GO_OUT ${GO_OUT}"
 export KUBELET_CIDFILE=/tmp/kubelet.cid
 if [[ "${ENABLE_DAEMON}" = false ]]; then
-  trap cleanup EXIT
+  kube::util::trap_add cleanup EXIT
 fi
 
 echo "Starting services now!"
