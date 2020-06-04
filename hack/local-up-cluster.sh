@@ -1091,6 +1091,10 @@ if [[ "${START_MODE}" != "kubeletonly" ]]; then
   test_apiserver_off
 fi
 
+if [[ "${ENABLE_DAEMON}" = false ]]; then
+  kube::util::trap_add cleanup EXIT
+fi
+
 kube::util::test_openssl_installed
 kube::util::ensure-cfssl
 
@@ -1101,9 +1105,6 @@ fi
 echo "Detected host and ready to start services.  Doing some housekeeping first..."
 echo "Using GO_OUT ${GO_OUT}"
 export KUBELET_CIDFILE=/tmp/kubelet.cid
-if [[ "${ENABLE_DAEMON}" = false ]]; then
-  trap cleanup EXIT
-fi
 
 echo "Starting services now!"
 if [[ "${START_MODE}" != "kubeletonly" ]]; then
