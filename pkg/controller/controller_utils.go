@@ -598,7 +598,7 @@ func (r RealPodControl) createPods(ctx context.Context, nodeName, namespace stri
 	// c, span := trace.StartSpan(ctx, "replicaset.CreatePod", trace.WithSampler(trace.AlwaysSample()))
 	// defer span.End()
 	request_id := ctx.Value("request-id").(string)
-	klog.Infof("createPods tr.span TraceID : request-id: %s", request_id)
+	klog.Infof("createPods tr.span TraceID : request-id: %s, ctx %v", request_id, ctx)
 	klog.Infof("TraceID propagation test controller_utils.go end")
 	// klog.Infof("createPods tr.span SpanID : %s", span.SpanContext().SpanID)
 	// traceutil.EncodeContextIntoObject(c, pod)
