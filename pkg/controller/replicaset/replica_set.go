@@ -590,11 +590,13 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*v1.Pod, rs *apps
 		successfulCreations, err := slowStartBatch(diff, controller.SlowStartInitialBatchSize, func() error {
 			//err := rsc.podControl.CreatePodsWithControllerRef(context.Background(), rs.Namespace, &rs.Spec.Template, rs, metav1.NewControllerRef(rs, rsc.GroupVersionKind))
 			klog.Infof("TraceID propagation test replica_set.go start")
-			ctx, span := traceutil.StartSpanFromObject(context.Background(), rs, "replicaset.CreatePod")
-			defer span.End()
-			klog.Infof("replicaset.CreatePod TraceID : %s", span.SpanContext().TraceID)
+			//ctx, span := traceutil.StartSpanFromObject(context.Background(), rs, "replicaset.CreatePod")
+			//defer span.End()
+			request_id := traceutil.LoadRequestIDFromObject(rs)
+			ctx := context.WithValue(context.Background(), "request-id", request_id)
+			klog.Infof("replicaset.CreatePod TraceID request-id: %s", request_id)
 			klog.Infof("TraceID propagation test replica_set.go end")
-			traceutil.EncodeContextIntoObject(ctx, rs)
+			// traceutil.EncodeContextIntoObject(ctx, rs)
 			err = rsc.podControl.CreatePodsWithControllerRef(ctx, rs.Namespace, &rs.Spec.Template, rs, metav1.NewControllerRef(rs, rsc.GroupVersionKind))
 
 			if err != nil {

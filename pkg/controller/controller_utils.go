@@ -31,7 +31,7 @@ import (
 	// "go.opentelemetry.io/otel/api/global"
 	// "go.opentelemetry.io/otel/exporter/trace/stdout"
 	// sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.opencensus.io/trace"
+	// "go.opencensus.io/trace"
 	traceutil "k8s.io/kubernetes/pkg/util/trace"
 
 	apps "k8s.io/api/apps/v1"
@@ -595,12 +595,14 @@ func (r RealPodControl) createPods(ctx context.Context, nodeName, namespace stri
 
 	klog.Infof("TraceID propagation test controller_utils.go start")
 	// c, span := traceutil.StartSpanFromObject(context.Background(), object, "replicaset.CreatePod")
-	c, span := trace.StartSpan(ctx, "replicaset.CreatePod", trace.WithSampler(trace.AlwaysSample()))
-	defer span.End()
-	klog.Infof("createPods tr.span TraceID : %s", span.SpanContext().TraceID)
+	// c, span := trace.StartSpan(ctx, "replicaset.CreatePod", trace.WithSampler(trace.AlwaysSample()))
+	// defer span.End()
+	request_id := ctx.Value("request-id").(string)
+	klog.Infof("createPods tr.span TraceID : request-id: %s", request_id)
 	klog.Infof("TraceID propagation test controller_utils.go end")
 	// klog.Infof("createPods tr.span SpanID : %s", span.SpanContext().SpanID)
-	traceutil.EncodeContextIntoObject(c, pod)
+	// traceutil.EncodeContextIntoObject(c, pod)
+	traceutil.SaveRequestIdToObject(pod, request_id)
 
 	// traceutil.EncodeContextIntoObject(ctx, pod)
 	if len(nodeName) != 0 {
