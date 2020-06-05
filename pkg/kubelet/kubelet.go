@@ -127,7 +127,7 @@ import (
 	// "go.opentelemetry.io/otel/api/global"
 	// "go.opentelemetry.io/otel/exporter/trace/stdout"
 	// sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.opencensus.io/trace"
+	// "go.opencensus.io/trace"
 	traceutil "k8s.io/kubernetes/pkg/util/trace"
 )
 
@@ -1935,9 +1935,11 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 		// tracer := global.TraceProvider().Tracer("ex.com/basic")
 		// ctx, span := tracer.Start(context.Background(), "test")
 		klog.Infof("TraceID propagation test kubelet.go syncLoopIteration start")
-		ctx, span := traceutil.StartSpanFromObject(context.Background(), u.Pods[0], "kubelet.CreatePod")
-		defer span.End()
-		klog.Infof("kubelet.CreatePod TraceID : %s", span.SpanContext().TraceID)
+		request_id := traceutil.LoadRequestIDFromObject(u.Pods[0])
+		ctx := context.WithValue(context.Background(), "request-id", request_id)
+		// ctx, span := traceutil.StartSpanFromObject(context.Background(), u.Pods[0], "kubelet.CreatePod")
+		// defer span.End()
+		klog.Infof("kubelet.CreatePod TraceID request-id: %s", request_id)
 		klog.Infof("TraceID propagation test kubelet.go syncLoopIteration end")
 
 		switch u.Op {
@@ -2103,9 +2105,11 @@ func (kl *Kubelet) HandlePodAdditions(ctx context.Context, pods []*v1.Pod) {
 	// 		return nil
 	// 	},
 	// )
-	_, span := trace.StartSpan(ctx, "HandlePodAdditions", trace.WithSampler(trace.AlwaysSample()))
-	defer span.End()
-	klog.Infof("HandlePodAdditions TraceID : %s", span.SpanContext().TraceID)
+	request_id := ctx.Value("request-id").(string)
+	// request_id := traceutil.LoadRequestIDFromObject(pod)
+	//_, span := trace.StartSpan(ctx, "HandlePodAdditions", trace.WithSampler(trace.AlwaysSample()))
+	//defer span.End()
+	klog.Infof("HandlePodAdditions TraceID request-id: %s", request_id)
 	klog.Infof("TraceID propagation test kubelet.go HandlePodAdditions end")
 
 	// // Test about propagation by resource
