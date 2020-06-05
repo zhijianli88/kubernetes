@@ -22,8 +22,9 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
+	"time"
 
-	"go.opencensus.io/trace"
+	//	"go.opencensus.io/trace"
 	traceutil "k8s.io/kubernetes/pkg/util/trace"
 
 	apps "k8s.io/api/apps/v1"
@@ -188,11 +189,14 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 	}
 
 	klog.Infof("TraceID propagation test sync.go start")
-	ctx, span := trace.StartSpan(context.Background(), "deployment.CreateReplicaSet", trace.WithSampler(trace.AlwaysSample()))
+	// ctx, span := trace.StartSpan(context.Background(), "deployment.CreateReplicaSet", trace.WithSampler(trace.AlwaysSample()))
 	// ctx, span := traceutil.StartSpanFromObject(context.Background(), d, "deployment.CreateReplicaSet")
-	defer span.End()
-	klog.Infof("deployment.CreateReplicaSet TraceID : %s", span.SpanContext().TraceID)
-	klog.Infof("TraceID propagation test sync.go end")
+	// defer span.End()
+	// klog.Infof("deployment.CreateReplicaSet TraceID : %s", span.SpanContext().TraceID)
+	// klog.Infof("TraceID propagation test sync.go end")
+	request_id := time.Now().Unix()
+	ctx := context.WithValue(context.Background(), "request-id", request_id)
+	klog.Infof("TraceID propagation test sync.go start, request-id %d", request_id)
 
 	// new ReplicaSet does not exist, create one.
 	newRSTemplate := *d.Spec.Template.DeepCopy()
