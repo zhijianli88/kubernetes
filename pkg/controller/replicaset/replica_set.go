@@ -37,7 +37,7 @@ import (
 
 	"context"
 
-	"go.opencensus.io/trace"
+	// "go.opencensus.io/trace"
 	traceutil "k8s.io/kubernetes/pkg/util/trace"
 
 	apps "k8s.io/api/apps/v1"
@@ -568,11 +568,13 @@ func (rsc *ReplicaSetController) manageReplicas(filteredPods []*v1.Pod, rs *apps
 		ourFlag := true
 
 		if ourFlag {
-			spanContext, ok := traceutil.SpanContextFromObject(rs)
-			if !ok {
-				spanContext = trace.SpanContext{}
-			}
-			klog.V(2).Infof("request-id=%s, Too few replicas for %v %s/%s, need %d, creating %d", spanContext.TraceID, rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
+			/*
+				spanContext, ok := traceutil.SpanContextFromObject(rs)
+				if !ok {
+					spanContext = trace.SpanContext{}
+				} */
+			request_id := traceutil.LoadRequestIDFromObject(rs)
+			klog.V(2).Infof("request-id=%s, Too few replicas for %v %s/%s, need %d, creating %d", request_id, rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
 		} else {
 			klog.V(2).Infof("Too few replicas for %v %s/%s, need %d, creating %d", rsc.Kind, rs.Namespace, rs.Name, *(rs.Spec.Replicas), diff)
 		}

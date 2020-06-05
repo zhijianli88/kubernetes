@@ -194,9 +194,9 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 	// defer span.End()
 	// klog.Infof("deployment.CreateReplicaSet TraceID : %s", span.SpanContext().TraceID)
 	// klog.Infof("TraceID propagation test sync.go end")
-	request_id := time.Now().Unix()
+	request_id := strconv.FormatInt(time.Now().Unix(), 10)
 	ctx := context.WithValue(context.Background(), "request-id", request_id)
-	klog.Infof("TraceID propagation test sync.go start, request-id %d", request_id)
+	klog.Infof("TraceID propagation test sync.go start, request-id %s", request_id)
 
 	// new ReplicaSet does not exist, create one.
 	newRSTemplate := *d.Spec.Template.DeepCopy()
@@ -230,7 +230,8 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 	*(newRS.Spec.Replicas) = newReplicasCount
 	// Set new replica set's annotation
 	deploymentutil.SetNewReplicaSetAnnotations(d, &newRS, newRevision, false, maxRevHistoryLengthInChars)
-	traceutil.EncodeContextIntoObject(ctx, &newRS)
+	// traceutil.EncodeContextIntoObject(ctx, &newRS)
+	traceutil.SaveRequestIdToObject(&newRS, request_id)
 	// Create the new ReplicaSet. If it already exists, then we need to check for possible
 	// hash collisions. If there is any other error, we need to report it in the status of
 	// the Deployment.

@@ -20,6 +20,7 @@ import (
 
 // TraceAnnotationKey is the annotation name where span context should be found
 const TraceAnnotationKey string = "trace.kubernetes.io/context"
+const ReqIDAnnotationKey string = "reqid.kubernetes.io/context"
 
 var lock = sync.RWMutex{}
 
@@ -92,6 +93,16 @@ func RemoveSpanContextFromObject(tracedResource meta.Object) {
 	klog.Infof("OC trace:RemoveSpanContextFromObject : Annotation?: %s", tracedResourceAnnotations[TraceAnnotationKey])
 	delete(tracedResourceAnnotations, TraceAnnotationKey)
 	tracedResource.SetAnnotations(tracedResourceAnnotations)
+}
+
+func SaveRequestIdToObject(tracedResource meta.Object, request_id string) {
+	tracedResourceAnnotations := tracedResource.GetAnnotations()
+	tracedResourceAnnotations[ReqIDAnnotationKey] = request_id
+}
+
+func LoadRequestIDFromObject(tracedResource meta.Object) string {
+	tracedResourceAnnotations := tracedResource.GetAnnotations()
+	return tracedResourceAnnotations[ReqIDAnnotationKey]
 }
 
 // encodeSpanContextIntoObject takes a pointer to an object and a Span Context to embed
