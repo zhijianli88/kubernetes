@@ -19,10 +19,10 @@ package deployment
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"reflect"
 	"sort"
 	"strconv"
-	"time"
 
 	//	"go.opencensus.io/trace"
 	traceutil "k8s.io/kubernetes/pkg/util/trace"
@@ -194,7 +194,7 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 	// defer span.End()
 	// klog.Infof("deployment.CreateReplicaSet TraceID : %s", span.SpanContext().TraceID)
 	// klog.Infof("TraceID propagation test sync.go end")
-	request_id := strconv.FormatInt(time.Now().Unix(), 10)
+	request_id := strconv.FormatInt(rand.Int63(), 10)
 	ctx := context.WithValue(context.Background(), "request-id", request_id)
 	klog.Infof("TraceID propagation test sync.go start, request-id %s", request_id)
 
