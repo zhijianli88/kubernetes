@@ -18,10 +18,13 @@ package trace
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog/v2"
 )
 
@@ -128,4 +131,28 @@ func (t *Trace) LogIfLong(threshold time.Duration) {
 // TotalTime can be used to figure out how long it took since the Trace was created
 func (t *Trace) TotalTime() time.Duration {
 	return time.Since(t.startTime)
+}
+
+const ReqIDAnnotationKey string = "reqid.kubernetes.io/context"
+
+func SaveRequestIdToObject(tracedResource meta.Object, request_id string) {
+	tracedResourceAnnotations := tracedResource.GetAnnotations()
+	tracedResourceAnnotations[ReqIDAnnotationKey] = request_id
+}
+
+func LoadRequestIDFromObject(tracedResource meta.Object) string {
+	tracedResourceAnnotations := tracedResource.GetAnnotations()
+	return tracedResourceAnnotations[ReqIDAnnotationKey]
+}
+
+func NewRequestID() string {
+	return strconv.FormatInt(rand.Int63(), 10)
+}
+
+func NewRequestIDContext(requestid string) context.Context {
+	return context.WithValue(context.Background(), "request-id", requestid)
+}
+
+func ContextToRequestID(ctx context.Context) string {
+	return ctx.Value("request-id").(string)
 }
