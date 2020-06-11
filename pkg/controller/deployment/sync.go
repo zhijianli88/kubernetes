@@ -31,6 +31,7 @@ import (
 	"k8s.io/kubernetes/pkg/controller"
 	deploymentutil "k8s.io/kubernetes/pkg/controller/deployment/util"
 	labelsutil "k8s.io/kubernetes/pkg/util/labels"
+	"k8s.io/utils/trace"
 )
 
 // syncStatusOnly only updates Deployments Status and doesn't take any mutating actions.
@@ -184,6 +185,10 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 		return nil, nil
 	}
 
+	request_id := trace.NewRequestID()
+	ctx := trace.NewRequestIDContext(request_id)
+	klog.Infof("TraceID propagation test sync.go start, request-id %s", request_id)
+
 	// new ReplicaSet does not exist, create one.
 	newRSTemplate := *d.Spec.Template.DeepCopy()
 	podTemplateSpecHash := controller.ComputeHash(&newRSTemplate, d.Status.CollisionCount)
@@ -216,11 +221,13 @@ func (dc *DeploymentController) getNewReplicaSet(d *apps.Deployment, rsList, old
 	*(newRS.Spec.Replicas) = newReplicasCount
 	// Set new replica set's annotation
 	deploymentutil.SetNewReplicaSetAnnotations(d, &newRS, newRevision, false, maxRevHistoryLengthInChars)
+	trace.SaveRequestIdToObject(&newRS, request_id)
+
 	// Create the new ReplicaSet. If it already exists, then we need to check for possible
 	// hash collisions. If there is any other error, we need to report it in the status of
 	// the Deployment.
 	alreadyExists := false
-	createdRS, err := dc.client.AppsV1().ReplicaSets(d.Namespace).Create(context.TODO(), &newRS, metav1.CreateOptions{})
+	createdRS, err := dc.client.AppsV1().ReplicaSets(d.Namespace).Create(ctx, &newRS, metav1.CreateOptions{})
 	switch {
 	// We may end up hitting this due to a slow cache or a fast resync of the Deployment.
 	case errors.IsAlreadyExists(err):
