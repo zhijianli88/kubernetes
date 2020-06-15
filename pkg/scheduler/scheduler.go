@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"k8s.io/utils/trace"
 	"math/rand"
 	"os"
 	"time"
@@ -524,7 +525,9 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 		return
 	}
 
-	klog.V(3).Infof("Attempting to schedule pod: %v/%v", pod.Namespace, pod.Name)
+	klog.V(3).Infof("Attempting to schedule pod: %v/%v, ctx %v", pod.Namespace, pod.Name, ctx)
+	request_id := trace.LoadRequestIDFromObject(pod)
+	klog.Infof("ScheduleOne pod request-id %s", request_id)
 
 	// Synchronously attempt to find a fit for the pod.
 	start := time.Now()

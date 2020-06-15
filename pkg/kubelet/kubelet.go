@@ -32,6 +32,7 @@ import (
 	"time"
 
 	"k8s.io/client-go/informers"
+	"k8s.io/utils/trace"
 
 	cadvisorapi "github.com/google/cadvisor/info/v1"
 	utilexec "k8s.io/utils/exec"
@@ -1834,6 +1835,12 @@ func (kl *Kubelet) syncLoopIteration(configCh <-chan kubetypes.PodUpdate, handle
 			return false
 		}
 
+		if len(u.Pods) > 0 {
+			request_id := trace.LoadRequestIDFromObject(u.Pods[0])
+			klog.Infof("kubelet.CreatePod TraceID request-id: %s", request_id)
+		} else {
+			klog.Infof("No avaliable request-id object")
+		}
 		switch u.Op {
 		case kubetypes.ADD:
 			klog.V(2).Infof("SyncLoop (ADD, %q): %q", u.Source, format.Pods(u.Pods))

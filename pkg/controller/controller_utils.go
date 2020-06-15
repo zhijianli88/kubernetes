@@ -575,6 +575,7 @@ func (r RealPodControl) createPods(ctx context.Context, nodeName, namespace stri
 
 	request_id := trace.ContextToRequestID(ctx)
 	klog.Infof("createPods: request-id: %s, ctx %v", request_id, ctx)
+	trace.SaveRequestIdToObject(pod, request_id)
 
 	if len(nodeName) != 0 {
 		pod.Spec.NodeName = nodeName
