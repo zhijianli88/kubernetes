@@ -649,6 +649,12 @@ const (
 	// Add support for the HPA to scale based on metrics from individual containers
 	// in target pods
 	HPAContainerMetrics featuregate.Feature = "HPAContainerMetrics"
+
+	// owner: @dashpole
+	// alpha: v1.20
+	//
+	// Add support for distributed tracing in the API Server
+	APIServerTracing featuregate.Feature = "APIServerTracing"
 )
 
 func init() {
@@ -747,6 +753,7 @@ var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureS
 	WinDSR:                                         {Default: false, PreRelease: featuregate.Alpha},
 	DisableAcceleratorUsageMetrics:                 {Default: true, PreRelease: featuregate.Beta},
 	HPAContainerMetrics:                            {Default: false, PreRelease: featuregate.Alpha},
+	APIServerTracing:                               {Default: false, PreRelease: featuregate.Alpha},
 
 	// inherited features from generic apiserver, relisted here to get a conflict if it is changed
 	// unintentionally on either side:
