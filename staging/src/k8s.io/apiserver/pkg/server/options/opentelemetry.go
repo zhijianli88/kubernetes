@@ -79,8 +79,8 @@ func (o *OpenTelemetryOptions) Apply(es *egressselector.EgressSelector) error {
 
 		if es != nil {
 			// Only use the egressselector dialer if egressselector is enabled.
-			// URL is on the "Master" network
-			egressDialer, err := es.Lookup(egressselector.Master.AsNetworkContext())
+			// URL is on the "ControlPlane" network
+			egressDialer, err := es.Lookup(egressselector.ControlPlane.AsNetworkContext())
 			if err != nil {
 				return err
 			}
