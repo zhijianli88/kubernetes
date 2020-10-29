@@ -131,6 +131,73 @@ spec:
 	}
 }
 
+func TestDefaultOpenTelemetryConfiguration(t *testing.T) {
+	otherPort := int32(12378)
+	otherURL := "foo:12345"
+	testcases := []struct {
+		name                string
+		expectedURL         *string
+		expectedServicePort *int32
+		config              *apiserver.OpenTelemetryClientConfiguration
+	}{
+		{
+			name:        "all-empty",
+			expectedURL: &defaultURL,
+			config: &apiserver.OpenTelemetryClientConfiguration{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "",
+					APIVersion: "",
+				},
+			},
+		},
+		{
+			name:                "empty-service",
+			expectedServicePort: &defaultPort,
+			config: &apiserver.OpenTelemetryClientConfiguration{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "",
+					APIVersion: "",
+				},
+				Service: &apiserver.ServiceReference{},
+			},
+		},
+		{
+			name:        "existing-url",
+			expectedURL: &otherURL,
+			config: &apiserver.OpenTelemetryClientConfiguration{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "",
+					APIVersion: "",
+				},
+				URL: &otherURL,
+			},
+		},
+		{
+			name:                "existing-service-port",
+			expectedServicePort: &otherPort,
+			config: &apiserver.OpenTelemetryClientConfiguration{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "",
+					APIVersion: "",
+				},
+				Service: &apiserver.ServiceReference{Port: &otherPort},
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			DefaultOpenTelemetryConfiguration(tc.config)
+			if tc.expectedURL != nil && *tc.expectedURL != *tc.config.URL {
+				t.Errorf("Calling DefaultOpenTelemetryConfiguration expected URL %v, got %v", *tc.expectedURL, *tc.config.URL)
+			}
+			if tc.expectedServicePort != nil && *tc.expectedServicePort != *tc.config.Service.Port {
+				t.Errorf("Calling DefaultOpenTelemetryConfiguration expected Service.Port %v, got %v", *tc.expectedServicePort, *tc.config.Service.Port)
+			}
+		})
+	}
+}
+
 func TestValidateOpenTelemetryConfiguration(t *testing.T) {
 	port := int32(12378)
 	testcases := []struct {

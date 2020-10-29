@@ -24,11 +24,11 @@ import (
 	"github.com/spf13/pflag"
 	"go.opentelemetry.io/otel/exporters/otlp"
 	"google.golang.org/grpc"
-	"k8s.io/utils/path"
 
 	"k8s.io/apiserver/pkg/opentelemetry"
 	"k8s.io/apiserver/pkg/server/egressselector"
 	"k8s.io/component-base/traces"
+	"k8s.io/utils/path"
 )
 
 // OpenTelemetryOptions contain configuration options for opentelemetry
@@ -55,7 +55,7 @@ func (o *OpenTelemetryOptions) AddFlags(fs *pflag.FlagSet) {
 
 // Apply adds the opentelemetry settings to the global configuration.
 func (o *OpenTelemetryOptions) Apply(es *egressselector.EgressSelector) error {
-	if o == nil {
+	if o == nil || o.ConfigFile == "" {
 		return nil
 	}
 
@@ -63,14 +63,11 @@ func (o *OpenTelemetryOptions) Apply(es *egressselector.EgressSelector) error {
 	if err != nil {
 		return fmt.Errorf("failed to read opentelemetry config: %v", err)
 	}
+
+	opentelemetry.DefaultOpenTelemetryConfiguration(npConfig)
 	errs := opentelemetry.ValidateOpenTelemetryConfiguration(npConfig)
 	if len(errs) > 0 {
 		return fmt.Errorf("failed to validate opentelemetry configuration: %v", errs.ToAggregate())
-	}
-
-	if npConfig == nil {
-		// No config file was specified, so don't enable exporting
-		return nil
 	}
 
 	opts := []otlp.ExporterOption{}
@@ -92,12 +89,7 @@ func (o *OpenTelemetryOptions) Apply(es *egressselector.EgressSelector) error {
 		}
 	}
 	if npConfig.Service != nil {
-		// Default port is 55680
-		port := int32(55680)
-		if npConfig.Service.Port != nil {
-			port = *npConfig.Service.Port
-		}
-		addr := fmt.Sprintf("%s.%s:%d", npConfig.Service.Name, npConfig.Service.Namespace, port)
+		addr := fmt.Sprintf("%s.%s:%d", npConfig.Service.Name, npConfig.Service.Namespace, *npConfig.Service.Port)
 		opts = append(opts, otlp.WithAddress(addr))
 
 		if es != nil {
@@ -125,16 +117,13 @@ func (o *OpenTelemetryOptions) Apply(es *egressselector.EgressSelector) error {
 }
 
 // Validate verifies flags passed to OpenTelemetryOptions.
-func (o *OpenTelemetryOptions) Validate() []error {
+func (o *OpenTelemetryOptions) Validate() (errs []error) {
 	if o == nil || o.ConfigFile == "" {
-		return nil
+		return
 	}
-
-	errs := []error{}
 
 	if exists, err := path.Exists(path.CheckFollowSymlink, o.ConfigFile); !exists || err != nil {
 		errs = append(errs, fmt.Errorf("opentelemetry-config-file %s does not exist", o.ConfigFile))
 	}
-
-	return errs
+	return
 }

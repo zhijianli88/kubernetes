@@ -999,7 +999,6 @@ EOF
     cat <<EOF >/etc/srv/kubernetes/opentelemetry_config.yaml
 apiVersion: apiserver.k8s.io/v1alpha1
 kind: OpenTelemetryClientConfiguration
-url: localhost:55680
 EOF
   fi
 

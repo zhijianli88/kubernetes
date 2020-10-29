@@ -29,7 +29,12 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-var cfgScheme = runtime.NewScheme()
+var (
+	cfgScheme = runtime.NewScheme()
+
+	defaultPort = int32(55680)
+	defaultURL  = "localhost:55680"
+)
 
 func init() {
 	install.Install(cfgScheme)
@@ -38,7 +43,7 @@ func init() {
 // ReadOpenTelemetryConfiguration reads the opentelemetry configuration from a file
 func ReadOpenTelemetryConfiguration(configFilePath string) (*apiserver.OpenTelemetryClientConfiguration, error) {
 	if configFilePath == "" {
-		return nil, nil
+		return nil, fmt.Errorf("opentelemetry config file was empty")
 	}
 	data, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
@@ -59,6 +64,21 @@ func ReadOpenTelemetryConfiguration(configFilePath string) (*apiserver.OpenTelem
 		return nil, err
 	}
 	return internalConfig, nil
+}
+
+// DefaultOpenTelemetryConfiguration defaults unset fields in the OpenTelemetryClientConfiguration
+func DefaultOpenTelemetryConfiguration(config *apiserver.OpenTelemetryClientConfiguration) {
+	if config == nil {
+		return
+	}
+	// Default the service port to the default OTLP port
+	if config.Service != nil && config.Service.Port == nil {
+		config.Service.Port = &defaultPort
+	}
+	// If niether URL or service is set, use the default URL
+	if config.Service == nil && config.URL == nil {
+		config.URL = &defaultURL
+	}
 }
 
 // ValidateOpenTelemetryConfiguration validates the opentelemetry configuration
