@@ -111,6 +111,7 @@ func TestAddFlags(t *testing.T) {
 		"--kubelet-client-certificate=/var/run/kubernetes/ceserver.crt",
 		"--kubelet-client-key=/var/run/kubernetes/server.key",
 		"--kubelet-certificate-authority=/var/run/kubernetes/caserver.crt",
+		"--opentelemetry-config-file=/var/run/kubernetes/opentelemetry_config.yaml",
 		"--proxy-client-cert-file=/var/run/kubernetes/proxy.crt",
 		"--proxy-client-key-file=/var/run/kubernetes/proxy.key",
 		"--request-timeout=2m",
@@ -305,6 +306,9 @@ func TestAddFlags(t *testing.T) {
 		ProxyClientCertFile:     "/var/run/kubernetes/proxy.crt",
 		Metrics:                 &metrics.Options{},
 		Logs:                    logs.NewOptions(),
+		OpenTelemetry: &apiserveroptions.OpenTelemetryOptions{
+			ConfigFile: "/var/run/kubernetes/opentelemetry_config.yaml",
+		},
 	}
 
 	if !reflect.DeepEqual(expected, s) {
