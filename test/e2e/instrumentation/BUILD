@@ -43,6 +43,7 @@ filegroup(
         "//test/e2e/instrumentation/common:all-srcs",
         "//test/e2e/instrumentation/logging:all-srcs",
         "//test/e2e/instrumentation/monitoring:all-srcs",
+        "//test/e2e/instrumentation/tracing:all-srcs",
     ],
     tags = ["automanaged"],
 )
