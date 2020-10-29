@@ -58,6 +58,7 @@ go_library(
         "metrics.go",
         "request_received_time.go",
         "requestinfo.go",
+        "traces.go",
         "warning.go",
     ],
     importmap = "k8s.io/kubernetes/vendor/k8s.io/apiserver/pkg/endpoints/filters",
@@ -85,6 +86,9 @@ go_library(
         "//staging/src/k8s.io/apiserver/pkg/warning:go_default_library",
         "//staging/src/k8s.io/component-base/metrics:go_default_library",
         "//staging/src/k8s.io/component-base/metrics/legacyregistry:go_default_library",
+        "//vendor/go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp:go_default_library",
+        "//vendor/go.opentelemetry.io/otel:go_default_library",
+        "//vendor/go.opentelemetry.io/otel/propagators:go_default_library",
         "//vendor/k8s.io/klog/v2:go_default_library",
     ],
 )

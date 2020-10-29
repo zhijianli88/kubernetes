@@ -16,12 +16,12 @@ require (
 	github.com/aws/aws-sdk-go v1.35.5
 	github.com/dnaeon/go-vcr v1.0.1 // indirect
 	github.com/golang/mock v1.3.1
-	github.com/google/go-cmp v0.4.0
+	github.com/google/go-cmp v0.5.2
 	github.com/gophercloud/gophercloud v0.1.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/rubiojr/go-vhd v0.0.0-20200706105327-02e210299021
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 	github.com/vmware/govmomi v0.20.3
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
@@ -41,6 +41,9 @@ require (
 )
 
 replace (
+	github.com/google/go-cmp => github.com/google/go-cmp v0.4.0
+	github.com/stretchr/testify => github.com/stretchr/testify v1.4.0
+	google.golang.org/grpc => google.golang.org/grpc v1.27.0
 	k8s.io/api => ../api
 	k8s.io/apimachinery => ../apimachinery
 	k8s.io/apiserver => ../apiserver

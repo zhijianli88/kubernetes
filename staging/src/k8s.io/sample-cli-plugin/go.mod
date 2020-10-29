@@ -12,6 +12,8 @@ require (
 )
 
 replace (
+	github.com/google/go-cmp => github.com/google/go-cmp v0.4.0
+	github.com/stretchr/testify => github.com/stretchr/testify v1.4.0
 	k8s.io/api => ../api
 	k8s.io/apimachinery => ../apimachinery
 	k8s.io/cli-runtime => ../cli-runtime

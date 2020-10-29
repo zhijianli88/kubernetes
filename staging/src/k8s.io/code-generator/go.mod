@@ -9,10 +9,11 @@ require (
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/spec v0.19.3 // indirect
 	github.com/gogo/protobuf v1.3.1
+	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.4.0 // indirect
+	github.com/stretchr/testify v1.6.1 // indirect
 	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/text v0.3.3 // indirect
@@ -23,4 +24,8 @@ require (
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
-replace k8s.io/code-generator => ../code-generator
+replace (
+	github.com/google/go-cmp => github.com/google/go-cmp v0.4.0
+	github.com/stretchr/testify => github.com/stretchr/testify v1.4.0
+	k8s.io/code-generator => ../code-generator
+)
