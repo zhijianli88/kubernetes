@@ -84,9 +84,5 @@ if [[ -n "${unused}" ]]; then
   echo "${unused}" | xargs -L 1 echo 'GO111MODULE=on go mod edit -dropreplace'
 fi
 
-if [[ -n "${unused}${outdated}" ]]; then
-  rc=1
-fi
-
 echo "All pinned versions of checked dependencies match their preferred version."
 exit $rc
