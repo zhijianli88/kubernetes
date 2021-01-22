@@ -22,37 +22,21 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 
-	"go.opentelemetry.io/otel"
 	apitrace "go.opentelemetry.io/otel/api/trace"
-	"go.opentelemetry.io/otel/label"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type contextKeyType int
 
-// avoid use char `/` in string
-const initialTraceIDAnnotationKey string = "trace.kubernetes.io.initial"
+const spanContextAnnotationKey string = "trace.kubernetes.io/context"
 
-// avoid use char `/` in string
-const spanContextAnnotationKey string = "trace.kubernetes.io.span.context"
-
-const initialTraceIDBaggageKey label.Key = "Initial-Trace-Id"
-
-// SpanContextWithObject returns a context.Context with Spacn and Baggage from the passed object
-func SpanContextWithObject(ctx context.Context, meta metav1.Object) context.Context {
-	return SpanContextFromAnnotations(ctx, meta.GetAnnotations())
+// WithObject returns a context attached with a Span retrieved from object annotation, it doesn't start a new span
+func WithObject(ctx context.Context, meta metav1.Object) context.Context {
+	return spanContextFromAnnotations(ctx, meta.GetAnnotations())
 }
 
-// SpanContextFromAnnotations get span context from annotations
-func SpanContextFromAnnotations(ctx context.Context, annotations map[string]string) context.Context {
-	// get init trace id from annotations
-	ctx = otel.ContextWithBaggageValues(
-		ctx,
-		label.KeyValue{
-			Key:   initialTraceIDBaggageKey,
-			Value: label.StringValue(annotations[initialTraceIDAnnotationKey]),
-		},
-	)
+// spanContextFromAnnotations get span context from annotations
+func spanContextFromAnnotations(ctx context.Context, annotations map[string]string) context.Context {
 	// get span context from annotations
 	spanContext, err := decodeSpanContext(annotations[spanContextAnnotationKey])
 	if err != nil {
