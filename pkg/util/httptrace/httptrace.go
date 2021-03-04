@@ -21,6 +21,8 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/binary"
+	"fmt"
+	"k8s.io/klog/v2"
 
 	apitrace "go.opentelemetry.io/otel/api/trace"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,11 +34,11 @@ const spanContextAnnotationKey string = "trace.kubernetes.io/context"
 
 // WithObject returns a context attached with a Span retrieved from object annotation, it doesn't start a new span
 func WithObject(ctx context.Context, meta metav1.Object) context.Context {
-	return spanContextFromAnnotations(ctx, meta.GetAnnotations())
+	return spanContextFromAnnotations(ctx, meta, meta.GetAnnotations())
 }
 
 // spanContextFromAnnotations get span context from annotations
-func spanContextFromAnnotations(ctx context.Context, annotations map[string]string) context.Context {
+func spanContextFromAnnotations(ctx context.Context, meta metav1.Object, annotations map[string]string) context.Context {
 	// get span context from annotations
 	spanContext, err := decodeSpanContext(annotations[spanContextAnnotationKey])
 	if err != nil {
@@ -45,7 +47,20 @@ func spanContextFromAnnotations(ctx context.Context, annotations map[string]stri
 	span := httpTraceSpan{
 		spanContext: spanContext,
 	}
+	klog.V(3).InfoS("Trace request", "object", klog.KObj(meta), "trace-id", spanContextString(spanContext))
 	return apitrace.ContextWithSpan(ctx, span)
+}
+
+func spanContextString(spanContext apitrace.SpanContext) string {
+	return fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+}
+
+func StringSpanContextFromObject(meta metav1.Object) string {
+	spanContext, err := decodeSpanContext(meta.GetAnnotations()[spanContextAnnotationKey])
+	if err != nil {
+		return ""
+	}
+	return spanContextString(spanContext)
 }
 
 // decodeSpanContext decode encodedSpanContext to spanContext
