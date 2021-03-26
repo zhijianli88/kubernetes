@@ -41,6 +41,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/apiserver/pkg/util/dryrun"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	"k8s.io/klog/v2"
 	utiltrace "k8s.io/utils/trace"
 )
 
@@ -52,6 +53,8 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 		trace := utiltrace.New("Create", utiltrace.Field{Key: "url", Value: req.URL.Path}, utiltrace.Field{Key: "user-agent", Value: &lazyTruncatedUserAgent{req}}, utiltrace.Field{Key: "client", Value: &lazyClientIP{req}})
 		defer trace.LogIfLong(500 * time.Millisecond)
 
+		traceparent := req.Header.Get("traceparent")
+		klog.V(2).Infof("traceparent %s, Header: %s\n", traceparent, req.Header)
 		if isDryRun(req.URL) && !utilfeature.DefaultFeatureGate.Enabled(features.DryRun) {
 			scope.err(errors.NewBadRequest("the dryRun feature is disabled"), w, req)
 			return
@@ -161,7 +164,9 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 				if err != nil {
 					return nil, fmt.Errorf("failed to create new object (Create for %v): %v", scope.Kind, err)
 				}
-				obj = scope.FieldManager.UpdateNoErrors(liveObj, obj, managerOrUserAgent(options.FieldManager, req.UserAgent()))
+				traceManager := traceparent + "-" + req.UserAgent()
+				klog.V(2).Infof("Create manager: %s\n", traceManager)
+				obj = scope.FieldManager.UpdateNoErrors(liveObj, obj, managerOrUserAgent(options.FieldManager, traceManager))
 			}
 			if mutatingAdmission, ok := admit.(admission.MutationInterface); ok && mutatingAdmission.Handles(admission.Create) {
 				if err := mutatingAdmission.Admit(ctx, admissionAttributes, scope); err != nil {
