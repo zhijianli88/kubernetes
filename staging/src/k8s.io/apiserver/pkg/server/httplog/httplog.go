@@ -18,8 +18,10 @@ package httplog
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"runtime"
@@ -86,7 +88,11 @@ func WithLogging(handler http.Handler, pred StacktracePred) http.Handler {
 		req = req.WithContext(context.WithValue(ctx, respLoggerContextKey, rl))
 
 		if klog.V(3).Enabled() {
-			defer func() { klog.InfoS("HTTP", rl.LogArgs()...) }()
+			b := body(req)
+			defer func() {
+				klog.InfoS("HTTP", "body", b)
+				klog.InfoS("HTTP", rl.LogArgs()...)
+			}()
 		}
 		handler.ServeHTTP(rl, req)
 	})
@@ -153,6 +159,17 @@ func StatusIsNot(statuses ...int) StacktracePred {
 // Addf adds additional data to be logged with this request.
 func (rl *respLogger) Addf(format string, data ...interface{}) {
 	rl.addedInfo += "\n" + fmt.Sprintf(format, data...)
+}
+
+func body(r *http.Request) string {
+	buf, bodyErr := ioutil.ReadAll(r.Body)
+	if bodyErr != nil {
+		return ""
+	}
+
+	rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf))
+	r.Body = rdr2
+	return string(buf)
 }
 
 func (rl *respLogger) LogArgs() []interface{} {
