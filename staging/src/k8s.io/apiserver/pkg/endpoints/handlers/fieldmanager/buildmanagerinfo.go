@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/endpoints/handlers/fieldmanager/internal"
+	"k8s.io/klog/v2"
 )
 
 type buildManagerInfoManager struct {
@@ -60,6 +61,7 @@ func (f *buildManagerInfoManager) Apply(liveObj, appliedObj runtime.Object, mana
 }
 
 func (f *buildManagerInfoManager) buildManagerInfo(prefix string, operation metav1.ManagedFieldsOperationType) (string, error) {
+	klog.DumpStack("Dump buildManagerInfo")
 	managerInfo := metav1.ManagedFieldsEntry{
 		Manager:    prefix,
 		Operation:  operation,
@@ -68,5 +70,6 @@ func (f *buildManagerInfoManager) buildManagerInfo(prefix string, operation meta
 	if managerInfo.Manager == "" {
 		managerInfo.Manager = "unknown"
 	}
+	klog.V(2).InfoS("Dump managerInfo", "managerInfo", managerInfo)
 	return internal.BuildManagerIdentifier(&managerInfo)
 }
