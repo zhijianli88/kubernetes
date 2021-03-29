@@ -82,6 +82,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -115,6 +116,19 @@ var severityName = []string{
 	warningLog: "WARNING",
 	errorLog:   "ERROR",
 	fatalLog:   "FATAL",
+}
+
+// dump special stack
+func DumpSpecialStack(name string) {
+	if name == "sleeping" {
+		debug.PrintStack()
+	}
+}
+
+// dump special stack
+func DumpStack(str string) {
+	Infoln(str)
+	debug.PrintStack()
 }
 
 // get returns the value of the severity.

@@ -165,6 +165,7 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 					return nil, fmt.Errorf("failed to create new object (Create for %v): %v", scope.Kind, err)
 				}
 				traceManager := traceparent + "-" + req.UserAgent()
+				klog.DumpStack()
 				klog.V(2).Infof("Create manager: %s\n", traceManager)
 				obj = scope.FieldManager.UpdateNoErrors(liveObj, obj, managerOrUserAgent(options.FieldManager, traceManager))
 			}
