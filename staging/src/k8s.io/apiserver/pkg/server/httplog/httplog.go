@@ -176,6 +176,7 @@ func (rl *respLogger) LogArgs() []interface{} {
 	latency := time.Since(rl.startTime)
 	if rl.hijacked {
 		return []interface{}{
+			"header", rl.req.Header,
 			"verb", rl.req.Method,
 			"URI", rl.req.RequestURI,
 			"latency", latency,
@@ -185,6 +186,7 @@ func (rl *respLogger) LogArgs() []interface{} {
 		}
 	}
 	args := []interface{}{
+		"header", rl.req.Header,
 		"verb", rl.req.Method,
 		"URI", rl.req.RequestURI,
 		"latency", latency,
