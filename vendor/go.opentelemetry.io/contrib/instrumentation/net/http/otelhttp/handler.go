@@ -27,6 +27,7 @@ import (
 	"go.opentelemetry.io/otel/api/trace"
 	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/semconv"
+	"k8s.io/klog/v2"
 )
 
 var _ http.Handler = &Handler{}
@@ -130,6 +131,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := h.propagators.Extract(r.Context(), r.Header)
 	ctx, span := h.tracer.Start(ctx, h.spanNameFormatter(h.operation, r), opts...)
 	defer span.End()
+	spanContext := span.SpanContext()
+	klog.V(3).Infof("WithTracing start new TraceContext: %s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
 
 	readRecordFunc := func(int64) {}
 	if h.readEvent {
