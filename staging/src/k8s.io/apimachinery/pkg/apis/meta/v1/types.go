@@ -1158,6 +1158,8 @@ type ManagedFieldsEntry struct {
 	// FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
 	// +optional
 	FieldsV1 *FieldsV1 `json:"fieldsV1,omitempty" protobuf:"bytes,7,opt,name=fieldsV1"`
+	// TraceContext is the tracecontext bound to a specific request
+	TraceContext string `json:"traceContext,omitempty" protobuf:"bytes,8,opt,name=traceContext"`
 }
 
 // ManagedFieldsOperationType is the type of operation which lead to a ManagedFieldsEntry being created.

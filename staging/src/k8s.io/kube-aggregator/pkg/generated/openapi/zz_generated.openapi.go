@@ -1216,6 +1216,13 @@ func schema_pkg_apis_meta_v1_ManagedFieldsEntry(ref common.ReferenceCallback) co
 							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.FieldsV1"),
 						},
 					},
+					"traceContext": {
+						SchemaProps: spec.SchemaProps{
+							Description: "TraceContext is the tracecontext bound to a specific request",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},

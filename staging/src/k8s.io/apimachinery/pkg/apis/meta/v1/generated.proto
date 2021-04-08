@@ -576,6 +576,9 @@ message ManagedFieldsEntry {
   // FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
   // +optional
   optional FieldsV1 fieldsV1 = 7;
+
+  // TraceContext is the tracecontext bound to a specific request
+  optional string traceContext = 8;
 }
 
 // MicroTime is version of Time with microsecond level precision.
