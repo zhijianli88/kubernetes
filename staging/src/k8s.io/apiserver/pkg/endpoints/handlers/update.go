@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	oteltrace "go.opentelemetry.io/otel/api/trace"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metainternalversionscheme "k8s.io/apimachinery/pkg/apis/meta/internalversion/scheme"
@@ -39,6 +40,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	"k8s.io/apiserver/pkg/util/dryrun"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	"k8s.io/klog/v2"
 	utiltrace "k8s.io/utils/trace"
 )
 
@@ -65,6 +67,10 @@ func UpdateResource(r rest.Updater, scope *RequestScope, admit admission.Interfa
 		ctx, cancel := context.WithTimeout(req.Context(), timeout)
 		defer cancel()
 		ctx = request.WithNamespace(ctx, namespace)
+
+		spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
+		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		klog.V(3).Infof("UpdateResource read TraceContext: %s", spanContextString)
 
 		outputMediaType, _, err := negotiation.NegotiateOutputMediaType(req, scope.Serializer, scope)
 		if err != nil {
