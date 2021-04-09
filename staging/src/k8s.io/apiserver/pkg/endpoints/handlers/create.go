@@ -26,6 +26,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	oteltrace "go.opentelemetry.io/otel/api/trace"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metainternalversionscheme "k8s.io/apimachinery/pkg/apis/meta/internalversion/scheme"
@@ -80,6 +81,8 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 		}
 
 		ctx, cancel := context.WithTimeout(req.Context(), timeout)
+		spanContext := oteltrace.SpanFromContext(req.Context()).SpanContext()
+		klog.V(3).Infof("createHndler read TraceContext: %s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
 		defer cancel()
 		outputMediaType, _, err := negotiation.NegotiateOutputMediaType(req, scope.Serializer, scope)
 		if err != nil {
