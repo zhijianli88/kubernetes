@@ -64,10 +64,16 @@ func (f *buildManagerInfoManager) Apply(liveObj, appliedObj runtime.Object, mana
 
 func (f *buildManagerInfoManager) buildManagerInfo(prefix string, operation metav1.ManagedFieldsOperationType) (string, error) {
 	klog.DumpStack("Dump buildManagerInfo")
+	traceContextString := "null"
+	if len(prefix) > 52 {
+		traceContextString = prefix[:52]
+		prefix = prefix[53:]
+	}
 	managerInfo := metav1.ManagedFieldsEntry{
-		Manager:    prefix,
-		Operation:  operation,
-		APIVersion: f.groupVersion.String(),
+		Manager:      prefix,
+		Operation:    operation,
+		APIVersion:   f.groupVersion.String(),
+		TraceContext: traceContextString,
 	}
 	if managerInfo.Manager == "" {
 		managerInfo.Manager = "unknown"
