@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 
+	oteltrace "go.opentelemetry.io/otel/api/trace"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/validation/path"
@@ -482,6 +483,10 @@ func (e *Store) Update(ctx context.Context, name string, objInfo rest.UpdatedObj
 				return nil, nil, apierrors.NewNotFound(qualifiedResource, name)
 			}
 		}
+
+		spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
+		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		klog.V(3).Infof("Update read TraceContext: %s", spanContextString)
 
 		// Given the existing object, get the new object
 		obj, err := objInfo.UpdatedObject(ctx, existing)

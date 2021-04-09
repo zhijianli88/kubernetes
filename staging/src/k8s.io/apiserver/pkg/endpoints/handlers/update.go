@@ -137,7 +137,11 @@ func UpdateResource(r rest.Updater, scope *RequestScope, admit admission.Interfa
 		if scope.FieldManager != nil {
 			transformers = append(transformers, func(_ context.Context, newObj, liveObj runtime.Object) (runtime.Object, error) {
 				if shouldUpdateManagedFields {
-					return scope.FieldManager.UpdateNoErrors(liveObj, newObj, managerOrUserAgent(options.FieldManager, req.UserAgent())), nil
+					spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
+					spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+					traceManager := spanContextString + "-" + managerOrUserAgent(options.FieldManager, req.UserAgent())
+					klog.V(3).Infof("read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
+					return scope.FieldManager.UpdateNoErrors(liveObj, newObj, traceManager), nil
 				}
 				return newObj, nil
 			})
