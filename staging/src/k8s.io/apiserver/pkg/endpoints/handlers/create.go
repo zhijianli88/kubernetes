@@ -54,8 +54,8 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 		trace := utiltrace.New("Create", utiltrace.Field{Key: "url", Value: req.URL.Path}, utiltrace.Field{Key: "user-agent", Value: &lazyTruncatedUserAgent{req}}, utiltrace.Field{Key: "client", Value: &lazyClientIP{req}})
 		defer trace.LogIfLong(500 * time.Millisecond)
 
-		traceparent := req.Header.Get("traceparent")
-		klog.V(2).Infof("traceparent %s, Header: %s\n", traceparent, req.Header)
+		//traceparent := req.Header.Get("traceparent")
+		//klog.V(2).Infof("traceparent %s, Header: %s\n", traceparent, req.Header)
 		if isDryRun(req.URL) && !utilfeature.DefaultFeatureGate.Enabled(features.DryRun) {
 			scope.err(errors.NewBadRequest("the dryRun feature is disabled"), w, req)
 			return
@@ -82,7 +82,8 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 
 		ctx, cancel := context.WithTimeout(req.Context(), timeout)
 		spanContext := oteltrace.SpanFromContext(req.Context()).SpanContext()
-		klog.V(3).Infof("createHndler read TraceContext: %s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		klog.V(3).Infof("createHndler read TraceContext: %s", spanContextString)
 		defer cancel()
 		outputMediaType, _, err := negotiation.NegotiateOutputMediaType(req, scope.Serializer, scope)
 		if err != nil {
@@ -167,10 +168,10 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 				if err != nil {
 					return nil, fmt.Errorf("failed to create new object (Create for %v): %v", scope.Kind, err)
 				}
-				traceManager := traceparent + "-" + req.UserAgent()
+				traceManager := spanContextString + "-" + managerOrUserAgent(options.FieldManager, req.UserAgent())
 				klog.DumpStack("Dump Create manager:")
 				klog.V(2).Infof("Create manager: %s\n", traceManager)
-				obj = scope.FieldManager.UpdateNoErrors(liveObj, obj, managerOrUserAgent(options.FieldManager, traceManager))
+				obj = scope.FieldManager.UpdateNoErrors(liveObj, obj, traceManager)
 			}
 			if mutatingAdmission, ok := admit.(admission.MutationInterface); ok && mutatingAdmission.Handles(admission.Create) {
 				if err := mutatingAdmission.Admit(ctx, admissionAttributes, scope); err != nil {
