@@ -294,7 +294,7 @@ type patcher struct {
 
 type patchMechanism interface {
 	applyPatchToCurrentObject(ctx context.Context, currentObject runtime.Object) (runtime.Object, error)
-	createNewObject() (runtime.Object, error)
+	createNewObject(ctx context.Context) (runtime.Object, error)
 }
 
 type jsonPatcher struct {
@@ -334,7 +334,7 @@ func (p *jsonPatcher) applyPatchToCurrentObject(ctx context.Context, currentObje
 	return objToUpdate, nil
 }
 
-func (p *jsonPatcher) createNewObject() (runtime.Object, error) {
+func (p *jsonPatcher) createNewObject(_ context.Context) (runtime.Object, error) {
 	return nil, errors.NewNotFound(p.resource.GroupResource(), p.name)
 }
 
@@ -415,13 +415,13 @@ func (p *smpPatcher) applyPatchToCurrentObject(ctx context.Context, currentObjec
 		spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
 		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
 		traceManager := spanContextString + "-" + managerOrUserAgent(p.options.FieldManager, p.userAgent)
-		klog.V(3).Infof("applyPatchToCurrentObject read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
+		klog.V(3).Infof("smpPather applyPatchToCurrentObject read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
 		newObj = p.fieldManager.UpdateNoErrors(currentObject, newObj, traceManager)
 	}
 	return newObj, nil
 }
 
-func (p *smpPatcher) createNewObject() (runtime.Object, error) {
+func (p *smpPatcher) createNewObject(_ context.Context) (runtime.Object, error) {
 	return nil, errors.NewNotFound(p.resource.GroupResource(), p.name)
 }
 
@@ -434,7 +434,7 @@ type applyPatcher struct {
 	userAgent    string
 }
 
-func (p *applyPatcher) applyPatchToCurrentObject(_ context.Context, obj runtime.Object) (runtime.Object, error) {
+func (p *applyPatcher) applyPatchToCurrentObject(ctx context.Context, obj runtime.Object) (runtime.Object, error) {
 	force := false
 	if p.options.Force != nil {
 		force = *p.options.Force
@@ -448,15 +448,19 @@ func (p *applyPatcher) applyPatchToCurrentObject(_ context.Context, obj runtime.
 		return nil, errors.NewBadRequest(fmt.Sprintf("error decoding YAML: %v", err))
 	}
 
-	return p.fieldManager.Apply(obj, patchObj, p.options.FieldManager, force)
+	spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
+	spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+	traceManager := spanContextString + "-" + p.options.FieldManager
+	klog.V(3).Infof("applyPatcher applyPatchToCurrentObject read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
+	return p.fieldManager.Apply(obj, patchObj, traceManager, force)
 }
 
-func (p *applyPatcher) createNewObject() (runtime.Object, error) {
+func (p *applyPatcher) createNewObject(ctx context.Context) (runtime.Object, error) {
 	obj, err := p.creater.New(p.kind)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new object: %v", err)
 	}
-	return p.applyPatchToCurrentObject(context.TODO(), obj)
+	return p.applyPatchToCurrentObject(ctx, obj)
 }
 
 // strategicPatchObject applies a strategic merge patch of <patchBytes> to
@@ -497,7 +501,7 @@ func (p *patcher) applyPatch(ctx context.Context, _, currentObject runtime.Objec
 	if err != nil {
 		return nil, err
 	} else if !currentObjectHasUID {
-		objToUpdate, patchErr = p.mechanism.createNewObject()
+		objToUpdate, patchErr = p.mechanism.createNewObject(ctx)
 	} else {
 		objToUpdate, patchErr = p.mechanism.applyPatchToCurrentObject(ctx, currentObject)
 	}
