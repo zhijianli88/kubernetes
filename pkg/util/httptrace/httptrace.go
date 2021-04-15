@@ -32,9 +32,39 @@ type contextKeyType int
 
 const spanContextAnnotationKey string = "trace.kubernetes.io/context"
 
+func stringToSpanContext(sc string) apitrace.SpanContext {
+	id, _ := apitrace.IDFromHex(sc[0:32])
+	spanid, _ := apitrace.SpanIDFromHex(sc[33:49])
+	return apitrace.SpanContext{
+		TraceID: id,
+		SpanID:  spanid,
+	}
+}
+
 // WithObject returns a context attached with a Span retrieved from object annotation, it doesn't start a new span
 func WithObject(ctx context.Context, meta metav1.Object) context.Context {
-	return spanContextFromAnnotations(ctx, meta, meta.GetAnnotations())
+	var latestContext string
+	var latestTimeStamp *metav1.Time
+
+	managedFields := meta.GetManagedFields()
+	for _, mf := range managedFields {
+		if latestTimeStamp != nil {
+			if latestTimeStamp.Before(mf.Time) {
+				latestTimeStamp = mf.Time
+				latestContext = mf.TraceContext
+			}
+		} else {
+			latestTimeStamp = mf.Time
+			latestContext = mf.TraceContext
+		}
+	}
+
+	span := httpTraceSpan{
+		spanContext: stringToSpanContext(latestContext),
+	}
+	klog.V(3).InfoS("Trace request", "object", klog.KObj(meta), "trace-id", latestContext)
+	return apitrace.ContextWithSpan(ctx, span)
+	// return spanContextFromAnnotations(ctx, meta, meta.GetAnnotations())
 }
 
 // spanContextFromAnnotations get span context from annotations
