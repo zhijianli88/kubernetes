@@ -48,7 +48,7 @@ func (f *buildManagerInfoManager) Update(liveObj, newObj runtime.Object, managed
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to build manager identifier: %v", err)
 	}
-	klog.V(2).InfoS("Update: ", "liveObj", liveObj, "newObj", newObj)
+	klog.V(2).InfoS("Update: ", "liveObj", liveObj, "newObj", newObj, "managed", managed)
 	return f.fieldManager.Update(liveObj, newObj, managed, manager)
 }
 
@@ -58,7 +58,7 @@ func (f *buildManagerInfoManager) Apply(liveObj, appliedObj runtime.Object, mana
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to build manager identifier: %v", err)
 	}
-	klog.V(2).InfoS("Apply: ", "liveObj", liveObj, "appliedObj", appliedObj)
+	klog.V(2).InfoS("Apply: ", "liveObj", liveObj, "appliedObj", appliedObj, "managed", managed)
 	return f.fieldManager.Apply(liveObj, appliedObj, managed, manager, force)
 }
 
