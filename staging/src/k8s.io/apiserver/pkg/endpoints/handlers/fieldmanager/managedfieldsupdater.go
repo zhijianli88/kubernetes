@@ -21,6 +21,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 )
 
@@ -44,12 +45,14 @@ func NewManagedFieldsUpdater(fieldManager Manager) Manager {
 // Update implements Manager.
 func (f *managedFieldsUpdater) Update(liveObj, newObj runtime.Object, managed Managed, manager string) (runtime.Object, Managed, error) {
 	self := "current-operation"
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	formerSet := managed.Fields()[manager]
 	object, managed, err := f.fieldManager.Update(liveObj, newObj, managed, self)
 	if err != nil {
 		return object, managed, err
 	}
 
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	// If the current operation took any fields from anything, it means the object changed,
 	// so update the timestamp of the managedFieldsEntry and merge with any previous updates from the same manager
 	if vs, ok := managed.Fields()[self]; ok {

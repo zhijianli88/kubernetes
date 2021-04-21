@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/endpoints/handlers/fieldmanager/internal"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 	"sigs.k8s.io/structured-merge-diff/v4/merge"
 )
@@ -72,6 +73,7 @@ func NewCRDStructuredMergeManager(typeConverter TypeConverter, objectConverter r
 
 // Update implements Manager.
 func (f *structuredMergeManager) Update(liveObj, newObj runtime.Object, managed Managed, manager string) (runtime.Object, Managed, error) {
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	newObjVersioned, err := f.toVersioned(newObj)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to convert new object to proper version: %v", err)

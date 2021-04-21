@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 )
 
 type lastAppliedUpdater struct {
@@ -41,6 +42,7 @@ func NewLastAppliedUpdater(fieldManager Manager) Manager {
 
 // Update implements Manager.
 func (f *lastAppliedUpdater) Update(liveObj, newObj runtime.Object, managed Managed, manager string) (runtime.Object, Managed, error) {
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	return f.fieldManager.Update(liveObj, newObj, managed, manager)
 }
 

@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/klog/v2"
 )
 
 type skipNonAppliedManager struct {
@@ -54,6 +55,7 @@ func NewProbabilisticSkipNonAppliedManager(fieldManager Manager, objectCreater r
 
 // Update implements Manager.
 func (f *skipNonAppliedManager) Update(liveObj, newObj runtime.Object, managed Managed, manager string) (runtime.Object, Managed, error) {
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	accessor, err := meta.Accessor(liveObj)
 	if err != nil {
 		return newObj, managed, nil
@@ -72,6 +74,7 @@ func (f *skipNonAppliedManager) Update(liveObj, newObj runtime.Object, managed M
 			return newObj, managed, nil
 		}
 	}
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	return f.fieldManager.Update(liveObj, newObj, managed, manager)
 }
 

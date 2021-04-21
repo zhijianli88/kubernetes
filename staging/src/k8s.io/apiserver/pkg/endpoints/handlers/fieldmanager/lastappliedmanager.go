@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 	"sigs.k8s.io/structured-merge-diff/v4/merge"
 )
@@ -51,6 +52,7 @@ func NewLastAppliedManager(fieldManager Manager, typeConverter TypeConverter, ob
 
 // Update implements Manager.
 func (f *lastAppliedManager) Update(liveObj, newObj runtime.Object, managed Managed, manager string) (runtime.Object, Managed, error) {
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	return f.fieldManager.Update(liveObj, newObj, managed, manager)
 }
 

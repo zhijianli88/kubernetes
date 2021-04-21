@@ -23,6 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/endpoints/handlers/fieldmanager/internal"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 )
 
@@ -46,13 +47,16 @@ func NewCapManagersManager(fieldManager Manager, maxUpdateManagers int) Manager 
 
 // Update implements Manager.
 func (f *capManagersManager) Update(liveObj, newObj runtime.Object, managed Managed, manager string) (runtime.Object, Managed, error) {
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	object, managed, err := f.fieldManager.Update(liveObj, newObj, managed, manager)
 	if err != nil {
 		return object, managed, err
 	}
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	if managed, err = f.capUpdateManagers(managed); err != nil {
 		return nil, nil, fmt.Errorf("failed to cap update managers: %v", err)
 	}
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	return object, managed, nil
 }
 

@@ -21,6 +21,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
+	"k8s.io/klog/v2"
 )
 
 type stripMetaManager struct {
@@ -55,10 +56,12 @@ func NewStripMetaManager(fieldManager Manager) Manager {
 
 // Update implements Manager.
 func (f *stripMetaManager) Update(liveObj, newObj runtime.Object, managed Managed, manager string) (runtime.Object, Managed, error) {
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	newObj, managed, err := f.fieldManager.Update(liveObj, newObj, managed, manager)
 	if err != nil {
 		return nil, nil, err
 	}
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	f.stripFields(managed.Fields(), manager)
 	return newObj, managed, nil
 }

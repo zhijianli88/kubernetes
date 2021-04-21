@@ -48,7 +48,7 @@ func (f *buildManagerInfoManager) Update(liveObj, newObj runtime.Object, managed
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to build manager identifier: %v", err)
 	}
-	klog.V(2).InfoS("Update: ", "liveObj", liveObj, "newObj", newObj, "managed", managed)
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "managed", managed)
 	return f.fieldManager.Update(liveObj, newObj, managed, manager)
 }
 
