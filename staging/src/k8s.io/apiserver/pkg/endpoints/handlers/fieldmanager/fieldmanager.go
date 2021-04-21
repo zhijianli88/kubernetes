@@ -159,12 +159,14 @@ func (f *FieldManager) Update(liveObj, newObj runtime.Object, manager string) (o
 	// This is necessary to allow directly updating managed fields.
 	managed, err := decodeManagedFields(liveObj, newObj, f.ignoreManagedFieldsFromRequestObject)
 	if err != nil {
+		klog.V(3).InfoS("Failed to decode decodeManagedFields", "manager", manager)
 		return newObj, nil
 	}
 
 	internal.RemoveObjectManagedFields(liveObj)
 	internal.RemoveObjectManagedFields(newObj)
 
+	klog.V(3).InfoS("tracecontext", "manager", manager, "newObj", newObj, "Update", f.fieldManager.Update)
 	if object, managed, err = f.fieldManager.Update(liveObj, newObj, managed, manager); err != nil {
 		return nil, err
 	}
