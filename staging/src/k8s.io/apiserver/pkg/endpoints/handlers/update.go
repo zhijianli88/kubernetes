@@ -69,7 +69,7 @@ func UpdateResource(r rest.Updater, scope *RequestScope, admit admission.Interfa
 		ctx = request.WithNamespace(ctx, namespace)
 
 		spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
-		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		spanContextString := fmt.Sprintf("%s-%s-%d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
 		klog.V(3).Infof("UpdateResource read TraceContext: %s", spanContextString)
 
 		outputMediaType, _, err := negotiation.NegotiateOutputMediaType(req, scope.Serializer, scope)
@@ -138,7 +138,8 @@ func UpdateResource(r rest.Updater, scope *RequestScope, admit admission.Interfa
 			transformers = append(transformers, func(_ context.Context, newObj, liveObj runtime.Object) (runtime.Object, error) {
 				if shouldUpdateManagedFields {
 					spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
-					spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+					xobj, _ := meta.Accessor(newObj)
+					spanContextString := fmt.Sprintf("%s-%s-%d", spanContext.TraceID, spanContext.SpanID, xobj.GetGeneration())
 					traceManager := spanContextString + "-" + managerOrUserAgent(options.FieldManager, req.UserAgent())
 					klog.V(3).Infof("read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
 					return scope.FieldManager.UpdateNoErrors(liveObj, newObj, traceManager), nil

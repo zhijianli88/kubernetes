@@ -485,7 +485,7 @@ func (e *Store) Update(ctx context.Context, name string, objInfo rest.UpdatedObj
 		}
 
 		spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
-		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		spanContextString := fmt.Sprintf("%s-%s-%d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
 		klog.V(3).Infof("Update read TraceContext: %s", spanContextString)
 
 		// Given the existing object, get the new object

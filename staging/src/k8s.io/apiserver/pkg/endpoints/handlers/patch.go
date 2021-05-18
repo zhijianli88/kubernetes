@@ -326,7 +326,8 @@ func (p *jsonPatcher) applyPatchToCurrentObject(ctx context.Context, currentObje
 
 	if p.fieldManager != nil {
 		spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
-		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		xobj, _ := meta.Accessor(currentObject)
+		spanContextString := fmt.Sprintf("%s-%s-%d", spanContext.TraceID, spanContext.SpanID, xobj.GetGeneration())
 		traceManager := spanContextString + "-" + managerOrUserAgent(p.options.FieldManager, p.userAgent)
 		klog.V(3).Infof("applyPatchToCurrentObject read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
 		objToUpdate = p.fieldManager.UpdateNoErrors(currentObject, objToUpdate, traceManager)
@@ -413,7 +414,8 @@ func (p *smpPatcher) applyPatchToCurrentObject(ctx context.Context, currentObjec
 
 	if p.fieldManager != nil {
 		spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
-		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+		xobj, _ := meta.Accessor(newObj)
+		spanContextString := fmt.Sprintf("%s-%s-%d", spanContext.TraceID, spanContext.SpanID, xobj.GetGeneration())
 		traceManager := spanContextString + "-" + managerOrUserAgent(p.options.FieldManager, p.userAgent)
 		klog.V(3).Infof("smpPather applyPatchToCurrentObject read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
 		newObj = p.fieldManager.UpdateNoErrors(currentObject, newObj, traceManager)
@@ -449,7 +451,8 @@ func (p *applyPatcher) applyPatchToCurrentObject(ctx context.Context, obj runtim
 	}
 
 	spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
-	spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+	xobj, _ := meta.Accessor(patchObj)
+	spanContextString := fmt.Sprintf("%s-%s-%d", spanContext.TraceID, spanContext.SpanID, xobj.GetGeneration())
 	traceManager := spanContextString + "-" + p.options.FieldManager
 	klog.V(3).Infof("applyPatcher applyPatchToCurrentObject read TraceContext: %s, traceManger: %s", spanContextString, traceManager)
 	return p.fieldManager.Apply(obj, patchObj, traceManager, force)
@@ -592,7 +595,7 @@ func (p *patcher) patchResource(ctx context.Context, scope *RequestScope) (runti
 	}
 
 	spanContext := oteltrace.SpanFromContext(ctx).SpanContext()
-	klog.V(3).Infof("patchResource read TraceContext: %s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
+	klog.V(3).Infof("patchResource read TraceContext: %s-%s-%d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
 
 	wasCreated := false
 	p.updatedObjectInfo = rest.DefaultUpdatedObjectInfo(nil, p.applyPatch, p.applyAdmission)

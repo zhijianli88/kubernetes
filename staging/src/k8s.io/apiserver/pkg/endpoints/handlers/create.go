@@ -81,9 +81,6 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 		}
 
 		ctx, cancel := context.WithTimeout(req.Context(), timeout)
-		spanContext := oteltrace.SpanFromContext(req.Context()).SpanContext()
-		spanContextString := fmt.Sprintf("%s-%s-%02d", spanContext.TraceID, spanContext.SpanID, spanContext.TraceFlags)
-		klog.V(3).Infof("createHndler read TraceContext: %s", spanContextString)
 		defer cancel()
 		outputMediaType, _, err := negotiation.NegotiateOutputMediaType(req, scope.Serializer, scope)
 		if err != nil {
@@ -168,6 +165,10 @@ func createHandler(r rest.NamedCreater, scope *RequestScope, admit admission.Int
 				if err != nil {
 					return nil, fmt.Errorf("failed to create new object (Create for %v): %v", scope.Kind, err)
 				}
+				spanContext := oteltrace.SpanFromContext(req.Context()).SpanContext()
+				xobj, _ := meta.Accessor(liveObj)
+				spanContextString := fmt.Sprintf("%s-%s-%d", spanContext.TraceID, spanContext.SpanID, xobj.GetGeneration())
+				klog.V(3).Infof("createHndler read TraceContext: %s", spanContextString)
 				traceManager := spanContextString + "-" + managerOrUserAgent(options.FieldManager, req.UserAgent())
 				klog.DumpStack("Dump Create manager:")
 				klog.V(2).Infof("Create manager: %s\n", traceManager)
