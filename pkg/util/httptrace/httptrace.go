@@ -42,7 +42,7 @@ func stringToSpanContext(sc string) apitrace.SpanContext {
 }
 
 // WithObject returns a context attached with a Span retrieved from object annotation, it doesn't start a new span
-func WithObject(ctx context.Context, meta metav1.Object) context.Context {
+func WithObject(ctx context.Context, meta metav1.Object, obv int64) context.Context {
 	var latestContext string
 	var latestTimeStamp *metav1.Time
 
@@ -57,7 +57,7 @@ func WithObject(ctx context.Context, meta metav1.Object) context.Context {
 			latestTimeStamp = mf.Time
 			latestContext = mf.TraceContext
 		}
-		klog.V(3).InfoS("Trace request", "object", klog.KObj(meta), "Generation", meta.GetGeneration(), "trace-id", mf.TraceContext)
+		klog.V(3).InfoS("Trace request", "object", klog.KObj(meta), "ObG", obv, "Generation", meta.GetGeneration(), "trace-id", mf.TraceContext)
 	}
 
 	span := httpTraceSpan{

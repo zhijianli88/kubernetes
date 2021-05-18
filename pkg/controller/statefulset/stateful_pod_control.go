@@ -75,7 +75,7 @@ type realStatefulPodControl struct {
 
 func (spc *realStatefulPodControl) CreateStatefulPod(set *apps.StatefulSet, pod *v1.Pod) error {
 	// Get span from annotations and set to ctx
-	ctx := httptrace.WithObject(context.Background(), set)
+	ctx := httptrace.WithObject(context.Background(), set, set.Status.ObservedGeneration)
 
 	// Create the Pod's PVCs prior to creating the Pod
 	if err := spc.createPersistentVolumeClaims(set, pod); err != nil {
@@ -95,7 +95,7 @@ func (spc *realStatefulPodControl) CreateStatefulPod(set *apps.StatefulSet, pod 
 
 func (spc *realStatefulPodControl) UpdateStatefulPod(set *apps.StatefulSet, pod *v1.Pod) error {
 	// Get span from annotations and set to ctx
-	ctx := httptrace.WithObject(context.Background(), set)
+	ctx := httptrace.WithObject(context.Background(), set, set.Status.ObservedGeneration)
 
 	attemptedUpdate := false
 	err := retry.RetryOnConflict(retry.DefaultBackoff, func() error {
@@ -145,7 +145,7 @@ func (spc *realStatefulPodControl) UpdateStatefulPod(set *apps.StatefulSet, pod 
 
 func (spc *realStatefulPodControl) DeleteStatefulPod(set *apps.StatefulSet, pod *v1.Pod) error {
 	// Get span from annotations and set to ctx
-	ctx := httptrace.WithObject(context.Background(), set)
+	ctx := httptrace.WithObject(context.Background(), set, set.Status.ObservedGeneration)
 
 	err := spc.client.CoreV1().Pods(set.Namespace).Delete(ctx, pod.Name, metav1.DeleteOptions{})
 	spc.recordPodEvent("delete", set, pod, err)
@@ -191,7 +191,7 @@ func (spc *realStatefulPodControl) recordClaimEvent(verb string, set *apps.State
 // set's Spec.
 func (spc *realStatefulPodControl) createPersistentVolumeClaims(set *apps.StatefulSet, pod *v1.Pod) error {
 	// Get span from annotations and set to ctx
-	ctx := httptrace.WithObject(context.Background(), set)
+	ctx := httptrace.WithObject(context.Background(), set, set.Status.ObservedGeneration)
 
 	var errs []error
 	for _, claim := range getPersistentVolumeClaims(set, pod) {

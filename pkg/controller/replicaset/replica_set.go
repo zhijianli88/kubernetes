@@ -541,7 +541,7 @@ func (rsc *ReplicaSetController) processNextWorkItem() bool {
 // It will requeue the replica set in case of an error while creating/deleting pods.
 func (rsc *ReplicaSetController) manageReplicas(filteredPods []*v1.Pod, rs *apps.ReplicaSet) error {
 	// Get span from annotations and set to ctx
-	ctx := httptrace.WithObject(context.Background(), rs)
+	ctx := httptrace.WithObject(context.Background(), rs, rs.Status.ObservedGeneration)
 
 	diff := len(filteredPods) - int(*(rs.Spec.Replicas))
 	rsKey, err := controller.KeyFunc(rs)
@@ -717,7 +717,7 @@ func (rsc *ReplicaSetController) syncReplicaSet(key string) error {
 
 func (rsc *ReplicaSetController) claimPods(rs *apps.ReplicaSet, selector labels.Selector, filteredPods []*v1.Pod) ([]*v1.Pod, error) {
 	// Get span from annotations and set to ctx
-	ctx := httptrace.WithObject(context.Background(), rs)
+	ctx := httptrace.WithObject(context.Background(), rs, rs.Status.ObservedGeneration)
 
 	// If any adoptions are attempted, we should first recheck for deletion with
 	// an uncached quorum read sometime after listing Pods (see #42639).
