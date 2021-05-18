@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/endpoints/handlers/fieldmanager/internal"
 	"k8s.io/klog/v2"
+	"strings"
 )
 
 type buildManagerInfoManager struct {
@@ -66,8 +67,9 @@ func (f *buildManagerInfoManager) buildManagerInfo(prefix string, operation meta
 	klog.DumpStack("Dump buildManagerInfo")
 	traceContextString := "null"
 	if len(prefix) > 52 {
-		traceContextString = prefix[:52]
-		prefix = prefix[53:]
+		s := strings.Split(prefix, "-")
+		traceContextString = strings.Join(s[:3], "-")
+		prefix = strings.Join(s[3:], "-")
 	}
 	managerInfo := metav1.ManagedFieldsEntry{
 		Manager:      prefix,

@@ -57,6 +57,7 @@ func WithObject(ctx context.Context, meta metav1.Object) context.Context {
 			latestTimeStamp = mf.Time
 			latestContext = mf.TraceContext
 		}
+		klog.V(3).InfoS("Trace request", "object", klog.KObj(meta), "Generation", meta.GetGeneration(), "trace-id", mf.TraceContext)
 	}
 
 	span := httpTraceSpan{
