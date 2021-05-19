@@ -509,6 +509,7 @@ func calculateStatus(allRSs []*apps.ReplicaSet, newRS *apps.ReplicaSet, deployme
 		unavailableReplicas = 0
 	}
 
+	klog.V(3).InfoS("calculateStatus", "deployment", deployment.Name, "obv", deployment.Status.ObservedGeneration, "Generation", deployment.Generation)
 	status := apps.DeploymentStatus{
 		// TODO: Ensure that if we start retrying status updates, we won't pick up a new Generation value.
 		ObservedGeneration:  deployment.Generation,

@@ -51,6 +51,7 @@ func updateReplicaSetStatus(c appsclient.ReplicaSetInterface, rs *apps.ReplicaSe
 	// that we've seen a spec update when we retry.
 	// TODO: This can clobber an update if we allow multiple agents to write to the
 	// same status.
+	klog.V(3).InfoS("updateReplicaSetStatus", "ReplicaSet", rs.Name, "obv", rs.Status.ObservedGeneration, "Generation", rs.Generation)
 	newStatus.ObservedGeneration = rs.Generation
 
 	var getErr, updateErr error

@@ -291,6 +291,7 @@ func (ssc *defaultStatefulSetControl) updateStatefulSet(
 	status.UpdateRevision = updateRevision.Name
 	status.CollisionCount = new(int32)
 	*status.CollisionCount = collisionCount
+	klog.V(3).InfoS("updateStatefulSet", "StatefulSet", set.Name, "obv", set.Status.ObservedGeneration, "Generation", set.Generation)
 
 	replicaCount := int(*set.Spec.Replicas)
 	// slice that will contain all Pods such that 0 <= getOrdinal(pod) < set.Spec.Replicas

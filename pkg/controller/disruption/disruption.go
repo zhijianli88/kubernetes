@@ -774,6 +774,7 @@ func (dc *DisruptionController) updatePdbStatus(pdb *policy.PodDisruptionBudget,
 		return nil
 	}
 
+	klog.V(3).InfoS("updatePdbStatus", "pdb", pdb.Name, "obv", pdb.Status.ObservedGeneration, "Generation", pdb.Generation)
 	newPdb := pdb.DeepCopy()
 	newPdb.Status = policy.PodDisruptionBudgetStatus{
 		CurrentHealthy:     currentHealthy,
