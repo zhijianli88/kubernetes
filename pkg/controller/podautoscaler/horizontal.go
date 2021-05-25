@@ -584,7 +584,11 @@ func (a *HorizontalController) reconcileAutoscaler(hpav1Shared *autoscalingv1.Ho
 
 	reference := fmt.Sprintf("%s/%s/%s", hpa.Spec.ScaleTargetRef.Kind, hpa.Namespace, hpa.Spec.ScaleTargetRef.Name)
 
-	ctx := httptrace.WithObject(context.Background(), hpa, *hpa.Status.ObservedGeneration)
+	obv := int64(0)
+	if hpa.Status.ObservedGeneration != nil {
+		obv = *hpa.Status.ObservedGeneration
+	}
+	ctx := httptrace.WithObject(context.Background(), hpa, obv)
 	targetGV, err := schema.ParseGroupVersion(hpa.Spec.ScaleTargetRef.APIVersion)
 	if err != nil {
 		a.eventRecorder.Event(hpa, v1.EventTypeWarning, "FailedGetScale", err.Error())
@@ -1149,7 +1153,11 @@ func (a *HorizontalController) updateStatus(hpa *autoscalingv2.HorizontalPodAuto
 		return fmt.Errorf("failed to convert the given HPA to %s: %v", autoscalingv2.SchemeGroupVersion.String(), err)
 	}
 	hpav1 := hpaRaw.(*autoscalingv1.HorizontalPodAutoscaler)
-	ctx := httptrace.WithObject(context.Background(), hpav1, *hpav1.Status.ObservedGeneration)
+	obv := int64(0)
+	if hpav1.Status.ObservedGeneration != nil {
+		obv = *hpav1.Status.ObservedGeneration
+	}
+	ctx := httptrace.WithObject(context.Background(), hpav1, obv)
 
 	_, err = a.hpaNamespacer.HorizontalPodAutoscalers(hpav1.Namespace).UpdateStatus(ctx, hpav1, metav1.UpdateOptions{})
 	if err != nil {
