@@ -29,7 +29,7 @@ import (
 	"k8s.io/klog/v2"
 
 	apps "k8s.io/api/apps/v1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -166,14 +166,14 @@ func (dc *DeploymentController) Run(workers int, stopCh <-chan struct{}) {
 
 func (dc *DeploymentController) addDeployment(obj interface{}) {
 	d := obj.(*apps.Deployment)
-	klog.V(4).Infof("Adding deployment %s", d.Name)
+	klog.V(3).InfoS("addDeployment", "deployment", d.Name, "obv", d.Status.ObservedGeneration, "Generation", d.Generation)
 	dc.enqueueDeployment(d)
 }
 
 func (dc *DeploymentController) updateDeployment(old, cur interface{}) {
 	oldD := old.(*apps.Deployment)
 	curD := cur.(*apps.Deployment)
-	klog.V(4).Infof("Updating deployment %s", oldD.Name)
+	klog.V(3).InfoS("updateDeployment", "deployment", oldD.Name, "old obv", oldD.Status.ObservedGeneration, "old Generation", oldD.Generation, "cur obv", curD.Status.ObservedGeneration, "cur Generation", curD.Generation)
 	dc.enqueueDeployment(curD)
 }
 
@@ -212,7 +212,7 @@ func (dc *DeploymentController) addReplicaSet(obj interface{}) {
 		if d == nil {
 			return
 		}
-		klog.V(4).Infof("ReplicaSet %s added.", rs.Name)
+		klog.V(3).InfoS("addReplicaSet", "ReplicaSet", rs.Name, "obv", rs.Status.ObservedGeneration, "Generation", rs.Generation)
 		dc.enqueueDeployment(d)
 		return
 	}
@@ -223,7 +223,8 @@ func (dc *DeploymentController) addReplicaSet(obj interface{}) {
 	if len(ds) == 0 {
 		return
 	}
-	klog.V(4).Infof("Orphan ReplicaSet %s added.", rs.Name)
+	klog.V(3).InfoS("addReplicaSet", "ReplicaSet", rs.Name, "obv", rs.Status.ObservedGeneration, "Generation", rs.Generation)
+	//klog.V(4).Infof("Orphan ReplicaSet %s added.", rs.Name)
 	for _, d := range ds {
 		dc.enqueueDeployment(d)
 	}
@@ -278,7 +279,8 @@ func (dc *DeploymentController) updateReplicaSet(old, cur interface{}) {
 		if d == nil {
 			return
 		}
-		klog.V(4).Infof("ReplicaSet %s updated.", curRS.Name)
+		klog.V(3).InfoS("updateReplicaSet", "ReplicaSet", curRS.Name, "old obv", oldRS.Status.ObservedGeneration, "old Generation", oldRS.Generation, "new obv", curRS.Status.ObservedGeneration, "new Generation", curRS.Generation)
+		//klog.V(4).Infof("ReplicaSet %s updated.", curRS.Name)
 		dc.enqueueDeployment(d)
 		return
 	}
@@ -291,7 +293,8 @@ func (dc *DeploymentController) updateReplicaSet(old, cur interface{}) {
 		if len(ds) == 0 {
 			return
 		}
-		klog.V(4).Infof("Orphan ReplicaSet %s updated.", curRS.Name)
+		klog.V(3).InfoS("updateReplicaSet", "ReplicaSet", curRS.Name, "old obv", oldRS.Status.ObservedGeneration, "old Generation", oldRS.Generation, "obv", curRS.Status.ObservedGeneration, "Generation", curRS.Generation)
+		//klog.V(4).Infof("Orphan ReplicaSet %s updated.", curRS.Name)
 		for _, d := range ds {
 			dc.enqueueDeployment(d)
 		}
